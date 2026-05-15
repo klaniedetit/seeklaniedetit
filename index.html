@@ -291,6 +291,32 @@
             text-align: center;
             margin-bottom: 1.5rem;
         }
+        @keyframes smoothRotate { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        @keyframes rgbGlowPulse { 
+            0% { filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6)); } 
+            50% { filter: drop-shadow(0 0 30px rgba(52, 211, 153, 0.9)); } 
+            100% { filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6)); } 
+        }
+        
+        /* A fő karika statikus hátterének eltüntetése */
+        .progress-circle.daras-anim {
+            background: transparent !important; 
+        }
+        
+        /* Ez a réteg fog pörögni a háttérben */
+        .progress-circle.daras-anim::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            background: conic-gradient(red, orange, yellow, green, cyan, blue, magenta, red);
+            animation: smoothRotate 2s linear infinite, rgbGlowPulse 4s ease-in-out infinite alternate;
+            z-index: 0;
+        }
 
         .aktivitas-info h3 { margin: 0 0 8px 0; font-weight: 600; color: var(--text); font-size: 1.1rem; }
         .aktivitas-info p { margin: 0 0 20px 0; color: var(--text-muted); font-size: 0.9rem; }
@@ -1642,7 +1668,8 @@ function toggleDetails(id) {
     }
 
     const MIN_AKCIO_SZAM = 6;      
-    const SZERVEZO_CEL = 6;        
+    const SZERVEZO_CEL = 6;
+    const DARAS_AKCIO_SZAM = 16;
 
     function frissitAktivitasMeter(p) {
         const resztvett = p.akcio_resztvett || 0;
@@ -1654,8 +1681,19 @@ function toggleDetails(id) {
             let szazalek = Math.min((resztvett / MIN_AKCIO_SZAM) * 100, 100);
             let szin = resztvett >= MIN_AKCIO_SZAM ? 'var(--success)' : 'var(--accent)';
 
-            circle.style.background = `conic-gradient(${szin} ${szazalek}%, var(--surface-light) ${szazalek}%)`;
-            subtitle.innerHTML = resztvett >= MIN_AKCIO_SZAM ? '<span style="color:var(--success); font-weight:500;">Cél teljesítve</span>' : `Még <span style="color:var(--text);">${MIN_AKCIO_SZAM - resztvett}</span> kell a célhoz`;
+            circle.classList.remove('daras-anim');
+            
+            if (resztvett >= DARAS_AKCIO_SZAM) {
+            circle.style.background = '';
+            circle.style.transition = 'none'; // <--- EZ KIKAPCSOLJA A BLOKKOLÁST
+            circle.classList.add('daras-anim');
+            subtitle.innerHTML = 'Lehet pihenni is kellene XD';
+            subtitle.style.color = '#34d399';
+        } else {
+                circle.style.background = `conic-gradient(${szin} ${szazalek}%, var(--surface-light) ${szazalek}%)`;
+                subtitle.innerHTML = resztvett >= MIN_AKCIO_SZAM ? '<span style="color:var(--success); font-weight:500;">Cél teljesítve</span>' : `Még <span style="color:var(--text);">${MIN_AKCIO_SZAM - resztvett}</span> kell a célhoz`;
+            }
+            
             text.innerHTML = `<span>${resztvett}</span> / ${MIN_AKCIO_SZAM}`;
         }
 
