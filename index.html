@@ -4,90 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <title>Klani E Detit | HQ</title>
-    <style>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         :root {
-            --bg: #09090b;
-            --surface: #121214;
-            --surface-light: #1f1f22;
-            --border: rgba(255, 255, 255, 0.08);
-            --text: #fafafa;
+            --bg: #000000;
+            --surface: #131315;
+            --surface-light: #1c1c1f;
+            --surface-hover: #27272a;
+            --border: #27272a;
+            --text: #f4f4f5;
             --text-muted: #a1a1aa;
-            --accent: #38bdf8;
-            --danger: #f87171;
-            --success: #34d399;
-            --warn: #fbbf24;
-            --radius: 12px;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warn: #f59e0b;
+            --radius: 24px;
+            --radius-sm: 12px;
             --ease: cubic-bezier(0.25, 1, 0.5, 1);
-            --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275)
         }
 
         body {
-            font-family: 'Oxanium', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: var(--text);
             margin: 0;
             min-height: 100vh;
             overflow-x: hidden;
-            background: linear-gradient(45deg, #050505, #0a0a0f, #050508, #000814);
+            
+            /* Sötét, elegáns gradient háttér */
+            background: linear-gradient(45deg, #000000, #0f172a, #000000, #050a15);
             background-size: 400% 400%;
-            animation: bgDrift 20s ease infinite alternate;
+            animation: gradientDrift 20s ease infinite alternate;
+            background-attachment: fixed;
+            
             color-scheme: dark;
         }
 
-        @keyframes bgDrift {
-            0% {
-                background-position: 0 50%
-            }
-
-            100% {
-                background-position: 100% 50%
-            }
+        /* A háttér lassú mozgásának animációja */
+        @keyframes gradientDrift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem
+        .container, .section, nav {
+            max-width: 1100px !important;
+            margin: 0 auto !important;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .section {
+            padding: 0 1rem;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.4s var(--ease) forwards;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 2.5rem;
+            padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: transform .4s var(--ease), border-color .4s var(--ease), box-shadow .4s var(--ease)
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8)
-        }
-
-        .section {
-            display: none
-        }
-
-        .section.active {
-            display: block;
-            animation: sectionEnter .6s var(--spring) forwards
-        }
-
-        @keyframes sectionEnter {
-            0% {
-                opacity: 0;
-                transform: translateY(40px) scale(0.98)
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1)
-            }
+            transition: all 0.3s var(--ease);
         }
 
         header {
-            background: #000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
             padding: 1.5rem 2rem;
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -95,416 +88,457 @@
             justify-content: space-between;
             position: sticky;
             top: 0;
-            z-index: 100
+            z-index: 100;
         }
 
         nav {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap
+            justify-content: center; /* Ez rendezi középre a gombokat */
+            gap: 12px; /* Kicsit nagyobb szünet a gombok között */
+            padding: 1.5rem 1rem;
+            margin-bottom: 1rem !important;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
-            background: 0 0;
+            background: transparent;
             color: var(--text-muted);
-            border: none;
-            border-radius: 30px;
-            padding: .6rem 1.5rem;
+            border: 1px solid var(--border); /* Ez adja meg a szegélyt */
+            border-radius: 99px; /* Még kerekebb, "pill" forma */
+            padding: 0.6rem 1.5rem;
             cursor: pointer;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: .8rem;
-            transition: all .3s var(--ease);
-            position: relative;
-            overflow: hidden
-        }
-
-        .nav-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--surface-light);
-            transform: scaleY(0);
-            transform-origin: bottom;
-            transition: transform .3s var(--ease);
-            z-index: -1;
-            border-radius: 30px
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            transition: all 0.2s var(--ease);
         }
 
         .nav-btn:hover {
             color: var(--text);
-            transform: translateY(-2px)
-        }
-
-        .nav-btn:hover::before {
-            transform: scaleY(1)
+            background: var(--surface-light);
+            border-color: #333; /* Hover állapotban kicsit világosabb szegély */
+            transform: translateY(-2px);
         }
 
         .nav-btn.active-nav {
-            color: var(--bg);
+            color: #fff;
             background: var(--accent);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4)
+            border-color: var(--accent); /* Az aktív gomb szegélye a saját színét kapja */
         }
 
         .btn {
             background: var(--surface-light);
             color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: .8rem 1.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: .8rem;
+            border: none;
+            border-radius: 99px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all .2s;
-            box-sizing: border-box
+            transition: all 0.2s var(--ease);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
         }
 
         .btn:hover {
-            background: var(--text);
-            color: var(--bg);
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15)
+            background: var(--surface-hover);
+            transform: translateY(-1px);
         }
 
-        .btn:active {
-            transform: scale(0.92)
-        }
+        .btn:active { transform: scale(0.97); }
 
-        .btn.btn-danger {
-            color: var(--danger);
-            border-color: rgba(248, 113, 113, 0.4);
-            background: 0 0
-        }
+        .btn.btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn.btn-danger:hover { background: var(--danger); color: #fff; }
 
-        .btn.btn-danger:hover {
-            background: var(--danger);
-            color: #fff;
-            box-shadow: 0 5px 15px rgba(248, 113, 113, 0.3);
-            border-color: var(--danger)
-        }
+        .btn.btn-warn { background: rgba(245, 158, 11, 0.1); color: var(--warn); }
+        .btn.btn-warn:hover { background: var(--warn); color: #fff; }
+        
+        .btn-primary { background: var(--accent) !important; color: white !important; }
+        .btn-primary:hover { background: var(--accent-hover) !important; }
 
-        .btn.btn-warn {
-            color: var(--warn);
-            border-color: rgba(251, 191, 36, 0.4);
-            background: 0 0
-        }
-
-        .btn.btn-warn:hover {
-            background: var(--warn);
-            color: #fff;
-            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.3);
-            border-color: var(--warn)
-        }
-
-        @keyframes pulseAlert {
-            0% {
-                box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7)
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(248, 113, 113, 0)
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(248, 113, 113, 0)
-            }
-        }
-
-        .nav-btn-alert {
-            animation: pulseAlert 1.5s infinite;
-            background: rgba(248, 113, 113, 0.1) !important;
-            color: var(--danger) !important;
-            border: 1px solid var(--danger)
-        }
-
-        @keyframes pulseWarn {
-            0% {
-                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7)
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(251, 191, 36, 0)
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0)
-            }
-        }
-
-        .nav-btn-warn {
-            animation: pulseWarn 1.5s infinite;
-            background: rgba(251, 191, 36, 0.1) !important;
-            color: var(--warn) !important;
-            border: 1px solid var(--warn)
-        }
-
-        input,
-        textarea,
-        select {
+        input, textarea, select {
             width: 100%;
-            padding: 1rem;
+            padding: 1rem 1.2rem;
             margin-bottom: 1.2rem;
-            background: #000;
+            background: var(--surface-light);
             color: var(--text);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-family: inherit;
-            transition: all .3s;
+            font-size: 0.95rem;
+            transition: all 0.2s;
             box-sizing: border-box;
-            outline: 0
+            outline: 0;
         }
 
-        input:focus,
-        textarea:focus,
-        select:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: var(--accent);
-            background: #0a0a0a;
-            box-shadow: inset 0 -3px 0 var(--accent);
-            transform: translateY(-2px)
+            background: var(--surface-hover);
         }
 
-        option {
-            background-color: var(--surface);
-            color: var(--text)
-        }
+        option { background-color: var(--surface); color: var(--text); }
 
         .table-wrapper {
-            max-height: 60vh;
+            max-height: 65vh;
             overflow-y: auto;
             overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: #050505
+            border-radius: var(--radius-sm);
+            background: transparent;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0;
-            min-width: 800px
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0 8px;
+            min-width: 800px; 
         }
 
         th {
-            text-align: left;
-            padding: 1rem;
+            text-align: left; 
+            padding: 1rem 1.2rem; 
             color: var(--text-muted);
-            font-weight: 600;
-            font-size: .75rem;
-            letter-spacing: 1px;
-            position: sticky;
-            top: 0;
+            font-weight: 500; 
+            font-size: 0.85rem; 
+            position: sticky; 
+            top: 0; 
             z-index: 10;
-            background: var(--surface);
-            border-bottom: 2px solid var(--border)
+            background: var(--bg);
         }
 
         td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            transition: all .2s var(--ease)
+            padding: 1.2rem; 
+            background: var(--surface);
+            transition: background 0.2s;
         }
-
-        tr {
-            transition: transform .2s var(--ease), background .2s
-        }
-
-        tr:hover {
-            background: rgba(255, 255, 255, 0.03)
-        }
+        
+        tr td:first-child { border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
+        tr td:last-child { border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
 
         tr:hover td {
-            transform: translateX(5px);
-            color: var(--text)
+            background: var(--surface-light);
         }
 
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 2000;
+            align-items: center; justify-content: center;
         }
 
         .modal-content {
-            width: 90%;
-            max-width: 600px;
+            width: 90%; max-width: 500px; 
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border); 
             border-radius: var(--radius);
-            padding: 2.5rem;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-            animation: modalPop .4s var(--spring) forwards
+            padding: 2.5rem; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalPop 0.3s var(--ease) forwards;
         }
 
         @keyframes modalPop {
-            0% {
-                opacity: 0;
-                transform: scale(0.8) translateY(30px)
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0)
-            }
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         #login-screen .card {
-            background: 0 0;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            animation: floatLogin 6s ease-in-out infinite alternate
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 3rem 2.5rem;
+            max-width: 380px;
+            margin: auto;
         }
 
-        @keyframes floatLogin {
-            0% {
-                transform: translateY(0)
-            }
-
-            100% {
-                transform: translateY(-20px)
-            }
-        }
-
-        #login-screen h2 {
-            font-size: 2.5rem;
-            color: var(--text);
-            letter-spacing: 2px
-        }
+        #login-screen h2 { font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 2rem; }
 
         .badge {
-            padding: .2rem .5rem;
-            border-radius: 4px;
-            font-size: .7rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase
-        }
-
-        .badge-active {
-            background: rgba(248, 113, 113, 0.2);
-            color: var(--danger);
-            border: 1px solid rgba(248, 113, 113, 0.5)
-        }
-
-        .badge-expired {
-            background: rgba(161, 161, 170, 0.2);
-            color: var(--text-muted);
-            border: 1px solid rgba(161, 161, 170, 0.5)
-        }
-
-        .tooltip {
-            position: relative;
+            padding: 0.3rem 0.8rem; border-radius: 99px; font-size: 0.75rem;
+            font-weight: 600; text-transform: capitalize;
             display: inline-block;
-            cursor: help;
-            margin-left: 10px
+        }
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-expired { background: rgba(161, 161, 170, 0.15); color: var(--text-muted); }
+
+        .home-layout {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            justify-content: space-between;
         }
 
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 250px;
-            background-color: var(--surface-light);
-            color: var(--text);
+        .home-main {
+            flex: 1;
+            min-width: 0; 
+        }
+
+        .home-sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+        }
+
+        .aktivitas-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            border-radius: 8px;
-            padding: 12px;
-            position: absolute;
-            z-index: 1;
-            bottom: 150%;
-            left: 50%;
-            margin-left: -125px;
-            opacity: 0;
-            transition: opacity .3s;
-            border: 1px solid var(--accent);
-            box-shadow: 0 10px 25px rgba(0, 210, 255, 0.2);
-            font-size: .9rem;
-            font-family: 'Oxanium';
-            line-height: 1.5;
-            pointer-events: none
+            margin-bottom: 1.5rem;
         }
 
-        .tooltip .tooltiptext::after {
+        .aktivitas-info h3 { margin: 0 0 8px 0; font-weight: 600; color: var(--text); font-size: 1.1rem; }
+        .aktivitas-info p { margin: 0 0 20px 0; color: var(--text-muted); font-size: 0.9rem; }
+        
+        .progress-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) 0%, var(--surface-light) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .progress-circle::after {
             content: "";
             position: absolute;
-            top: 100%;
+            width: 130px; 
+            height: 130px;
+            background: var(--surface);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .progress-text {
+            z-index: 2;
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .progress-text span {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .home-layout { flex-direction: column-reverse; }
+            .home-sidebar { width: 100%; position: static; margin-bottom: 20px; }
+        }
+
+        #hirek-section.active .home-layout {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            max-width: 100%;
+        }
+
+        .akcio-compact {
+            padding: 1.2rem !important;
+            margin-bottom: 12px !important;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .akcio-compact:hover {
+            background: var(--surface-light);
+            border-color: #333;
+        }
+        
+        .akcio-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--accent);
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        .akcio-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Overrides for inline styles */
+        .btn[style*="border-color:var(--accent)"] {
+            background: var(--accent) !important;
+            color: white !important;
+            border: none !important;
+        }
+        .btn[style*="border-color:var(--success)"] {
+            background: var(--success) !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        /* Tooltip */
+        .tooltip { position: relative; display: inline-block; cursor: help; margin-left: 8px; }
+        .tooltip .tooltiptext {
+            visibility: hidden; width: 220px; background-color: var(--surface-light);
+            color: var(--text); text-align: center; border-radius: var(--radius-sm); padding: 12px;
+            position: absolute; z-index: 1000; bottom: 150%; left: 50%; margin-left: -110px;
+            opacity: 0; transition: opacity 0.2s; border: 1px solid var(--border);
+            font-size: 0.85rem; font-weight: normal;
+        }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+        
+        /* Badges for roles like in image */
+        .role-badge {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        /* Clean up headings */
+        h1, h2, h3 { font-weight: 600; letter-spacing: -0.02em; }
+    
+        #welcome-toast {
+            position: fixed;
+            top: 50%;
             left: 50%;
-            margin-left: -5px;
-            border-width: 6px;
-            border-style: solid;
-            border-color: var(--accent) transparent transparent transparent
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(19, 19, 21, 0.95);
+            color: var(--accent);
+            padding: 2rem 3rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+            z-index: 10000;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s var(--ease);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1
+        #welcome-toast.show {
+            opacity: 1 !important;
+            transform: translate(-50%, -50%) scale(1) !important;
         }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;800&display=swap" rel="stylesheet">
+        @keyframes pulseAlert {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .nav-btn-alert { 
+            animation: pulseAlert 1.5s infinite !important; 
+            background: rgba(239, 68, 68, 0.15) !important; 
+            color: var(--danger) !important; 
+            border-color: var(--danger) !important; 
+        }
+
+</style>
 </head>
-
 <body>
+
     <div id="login-screen" class="auth-screen active"
         style="height:100vh;display:flex;align-items:center;justify-content:center">
         <div class="card" style="width:350px;text-align:center">
-            <h2 style="color:var(--accent)">Klani E Detit</h2><input type="text" id="login-user"
+            <h2 style="color:var(--text)">Klani E Detit</h2><input type="text" id="login-user"
                 placeholder="Felhasználó név"><input type="password" id="login-pass" placeholder="Jelszó"><button
-                class="btn" style="width:100%;border-color:var(--accent);color:var(--accent)"
+                class="btn btn-primary" style="width:100%; margin-top: 10px;"
                 onclick="bejelentkezes()">Bejelentkezés</button>
             <p id="login-hiba" style="color:var(--danger);margin-top:1rem"></p>
         </div>
     </div>
     <div id="main-app" style="display:none">
         <header>
-            <h1 style="color:var(--accent);font-size:1.2rem;margin:0;flex:1">KLANI E DETIT | HQ</h1>
-            <div id="header-rang" style="color:var(--accent);font-weight:800;text-align:center;flex:1">RANG: -</div>
-            <div style="flex:1;text-align:right"><span id="logged-in-user"
-                    style="color:var(--text);font-weight:700"></span><button onclick="kijelentkezes()"
-                    style="margin-left:10px;color:var(--danger);background:0 0;border:none;cursor:pointer;font-weight:700">[
-                    KIJELENTKEZÉS ]</button></div>
+            <h1 style="color:var(--text);font-size:1.1rem;font-weight:600;margin:0;flex:1">KLANI E DETIT | HQ</h1>
+            <div id="header-rang" style="color:var(--text-muted);font-weight:500;text-align:center;flex:1">RANG: -</div>
+            <div style="flex:1;text-align:right; display:flex; justify-content:flex-end; align-items:center; gap:15px;">
+                <span id="logged-in-user" style="color:var(--text);font-weight:500; display:flex; align-items:center; gap:10px;">
+                    <div style="width:32px; height:32px; background:var(--surface-light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text-muted);">U</div>
+                    <span>User</span>
+                </span>
+                <button onclick="kijelentkezes()" style="padding:0.4rem 1rem; font-size:0.85rem; background:rgba(239, 68, 68, 0.15); color:var(--danger); border:none; border-radius:99px; cursor:pointer; font-weight:500; transition:all 0.2s;">
+                    Kijelentkezés
+                </button>
+            </div>
         </header>
-        <nav><button class="nav-btn active-nav" onclick="tab('hirek-section',this)">Közlemények</button><button
-                class="nav-btn" onclick="tab('kassza-section',this)">Frakció számla</button><button class="nav-btn"
-                id="nav-leadando" onclick="tab('leadando-section',this)">Leadandó</button><button class="nav-btn"
-                onclick="tab('tagok-section',this)">Tagok</button><button class="nav-btn" id="nav-akcio"
-                onclick="tab('akcio-section',this)">Akció</button><button class="nav-btn" id="nav-warn"
-                style="display:none;color:var(--warn)" onclick="tab('warn-section',this)">WARN</button><button
-                class="nav-btn" onclick="tab('profil-section',this)">Saját Profil</button><button class="nav-btn"
-                id="nav-jogok" style="display:none;color:var(--danger)" onclick="tab('jogok-section',this)">ADMIN
-                panel</button></nav>
+        
+        <nav>
+            <button class="nav-btn active-nav" onclick="tab('hirek-section',this)">Közlemények</button>
+            <button class="nav-btn" onclick="tab('kassza-section',this)">Frakció számla</button>
+            <button class="nav-btn" id="nav-leadando" onclick="tab('leadando-section',this)">Leadandó</button>
+            <button class="nav-btn" onclick="tab('tagok-section',this)">Tagok</button>
+            <button class="nav-btn" id="nav-akcio" onclick="tab('akcio-section',this)">Akció</button>
+            <button class="nav-btn" id="nav-warn" style="display:none;color:var(--warn)" onclick="tab('warn-section',this)">WARN</button>
+            <button class="nav-btn" onclick="tab('profil-section',this)">Saját Profil</button>
+            <button class="nav-btn" id="nav-jogok" style="display:none;color:var(--danger)" onclick="tab('jogok-section',this)">ADMIN panel</button>
+        </nav>
+        
         <div class="container">
             <div id="password-screen" class="section card" style="max-width:400px;margin:auto;text-align:center">
                 <h2>Üdvözöllek! Válts jelszót:</h2><input type="password" id="new-pass" placeholder="Új jelszó"><button
-                    class="btn" style="width:100%;border-color:var(--accent);color:var(--accent)"
+                    class="btn btn-primary" style="width:100%;"
                     onclick="jelszocsere()">Mentés</button>
             </div>
-            <div id="hirek-section" class="section active">
-                <div id="uj-hir-doboz" class="card" style="display:none">
-                    <h3>Új bejegyzés</h3><input type="text" id="hir-cim" placeholder="Cím"><textarea id="hir-tartalom"
-                        rows="3" placeholder="Tartalom..."></textarea><button class="btn"
-                        style="border-color:var(--accent);color:var(--accent)" onclick="posztolHir()">Küldés</button>
-                </div>
-                <div id="hirek-lista"></div>
+<div id="hirek-section" class="section active" style="position: relative;">
+    
+    <div class="home-layout">
+        <div class="home-main">
+            <div id="uj-hir-doboz" class="card" style="display:none">
+                <h3 style="margin-top:0;">Új bejegyzés</h3>
+                <input type="text" id="hir-cim" placeholder="Cím">
+                <textarea id="hir-tartalom" rows="3" placeholder="Tartalom..."></textarea>
+                <button class="btn btn-primary" onclick="posztolHir()">Küldés</button>
             </div>
+            
+            <div id="hirek-lista"></div>
+        </div>
+
+        <div class="home-sidebar">
+            <div class="aktivitas-card" id="aktivitas-karty-container" style="margin: 0;">
+                <div class="aktivitas-info">
+                    <h3>Akció részvétel</h3>
+                    <p>Vegyél részt akciókon, hogy elérd a kötelező szintet!</p>
+                </div>
+                <div class="progress-circle" id="daras-circle">
+                    <div class="progress-text" id="daras-text">
+                        <span>0</span> / 6
+                    </div>
+                </div>
+                <div id="daras-subtitle" style="margin-top:20px; color:var(--text-muted); font-size:0.9rem;">Betöltés...</div>
+            </div>
+
+            <div id="szervezo-kontener"></div>
+        </div>
+    </div>
+
+</div>
 <div id="leadando-section" class="section">
                 <div class="card" style="text-align:center">
-                    <h2 style="color:var(--warn);margin-top:0">Heti Leadandó Státusz</h2>
-                    <p style="color:var(--text-muted);font-size:.8rem;margin-bottom:20px">A heti leadandót a vezetőség manuálisan zárja le. A hiányzók automatikusan WARN-t kapnak (1 hónapos lejárattal)!</p>
-                    <h1 id="leadando-sajat-display" style="font-size:2.5rem;margin:0 0 20px 0">Betöltés...</h1>
+                    <h2 style="margin-top:0">Heti Leadandó Státusz</h2>
+                    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:20px">A heti leadandót a vezetőség manuálisan zárja le.</p>
+                    <h1 id="leadando-sajat-display" style="font-size:2.5rem;margin:0 0 20px 0; font-weight:700;">Betöltés...</h1>
                     <div id="leadando-befizetes-box"
                         style="display:none;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap;margin-top:10px">
                         <input type="text" id="leadando-osszeg" placeholder="Összeg ($)"
@@ -513,25 +547,27 @@
                                 type="text" id="leadando-link" placeholder="Igazoló Link (Imgur/Discord)"
                                 style="width:100%;margin:0">
                             <div class="tooltip"><span
-                                    style="color:var(--accent);font-weight:700;font-size:1.5rem;text-shadow:0 0 10px var(--accent)">?</span><span
-                                    class="tooltiptext">Ide másold be a befizetést igazoló képernyőmentés linkjét!
-                                    Enélkül a befizetés nem lesz érvényes!</span></div>
+                                    style="color:var(--text-muted);font-weight:600;font-size:1.2rem;">ⓘ</span><span
+                                    class="tooltiptext">Ide másold be a befizetést igazoló képernyőmentés linkjét!</span></div>
                         </div><button class="btn btn-warn" onclick="inditLeadando()">Befizetés rögzítése</button>
                     </div>
                 </div>
                 <div id="leadando-admin-box" class="card" style="display:none;padding:0;overflow:hidden">
-                    <h3 style="padding:1.5rem 1.5rem 0 1.5rem;color:var(--accent);margin:0;display:flex;justify-content:space-between;align-items:center;">
-                        Tagok Leadandó Állapota
-                        <button id="manualis-zaras-btn" class="btn btn-danger" style="display:none;padding:0.4rem 0.8rem;font-size:0.7rem;letter-spacing:1px;" onclick="manualisLeadandoZaras()">HETI ZÁRÁS</button>
-                    </h3>
-                    <div class="table-wrapper" style="border:none;border-top:1px solid var(--border);border-radius:0">
+                    <div style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
+                        <h3 style="margin: 0;">Tagok Leadandó Állapota</h3>
+                        <button id="manualis-zaras-btn" class="btn btn-danger" 
+                                style="display: none; padding: 0.5rem 1rem; font-size: 0.8rem; margin: 0;">
+                                HETI ZÁRÁS
+                        </button>
+                    </div>
+                    <div class="table-wrapper" style="padding: 0 1rem 1rem 1rem;">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Név</th>
                                     <th>Rang</th>
-                                    <th>Befizetve a héten</th>
-                                    <th>Kötelező Leadandó</th>
+                                    <th>Befizetve</th>
+                                    <th>Kötelező</th>
                                     <th>Státusz</th>
                                 </tr>
                             </thead>
@@ -540,41 +576,25 @@
                     </div>
                 </div>
             </div>
-                <div id="leadando-admin-box" class="card" style="display:none;padding:0;overflow:hidden">
-                    <h3 style="padding:1.5rem 1.5rem 0 1.5rem;color:var(--accent);margin:0">Tagok Leadandó Állapota</h3>
-                    <div class="table-wrapper" style="border:none;border-top:1px solid var(--border);border-radius:0">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Név</th>
-                                    <th>Rang</th>
-                                    <th>Befizetve a héten</th>
-                                    <th>Kötelező Leadandó</th>
-                                    <th>Státusz</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leadando-admin-lista"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            
             <div id="warn-section" class="section">
-                <div class="card" style="border-color:var(--warn)">
-                    <h3 style="color:var(--warn);margin-top:0">Új Figyelmeztetés Kiosztása</h3>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap"><select id="warn-tag-select"
-                            style="flex:1;min-width:200px"></select><select id="warn-napok"
-                            style="flex:1;min-width:150px">
+                <div class="card">
+                    <h3 style="margin-top:0">Új Figyelmeztetés Kiosztása</h3>
+                    <div style="display:flex;gap:15px;flex-wrap:wrap; margin-bottom:15px;">
+                        <select id="warn-tag-select" style="flex:1;min-width:200px; margin:0;"></select>
+                        <select id="warn-napok" style="flex:1;min-width:150px; margin:0;">
                             <option value="1">1 Nap</option>
                             <option value="7">7 Nap</option>
                             <option value="30">30 Nap</option>
                             <option value="0">Végleges</option>
-                        </select></div><textarea id="warn-indok" rows="2"
-                        placeholder="Figyelmeztetés indoka (Kötelező)"></textarea><button class="btn btn-warn"
-                        style="width:100%" onclick="kiosztWarn()">Figyelmeztetés Rögzítése</button>
+                        </select>
+                    </div>
+                    <textarea id="warn-indok" rows="2" placeholder="Figyelmeztetés indoka (Kötelező)"></textarea>
+                    <button class="btn btn-warn" style="width:100%" onclick="kiosztWarn()">Figyelmeztetés Rögzítése</button>
                 </div>
                 <div class="card" style="padding:0;overflow:hidden">
-                    <h3 style="padding:1.5rem 1.5rem 0 1.5rem;color:var(--warn);margin:0">Kiosztott Warnok</h3>
-                    <div class="table-wrapper" style="border:none;border-top:1px solid var(--border);border-radius:0">
+                    <h3 style="padding:1.5rem; margin:0; border-bottom: 1px solid var(--border);">Kiosztott Warnok</h3>
+                    <div class="table-wrapper" style="padding: 1rem;">
                         <table>
                             <thead>
                                 <tr>
@@ -591,42 +611,41 @@
                     </div>
                 </div>
             </div>
+            
             <div id="akcio-section" class="section">
-                <div id="uj-akcio-box" class="card" style="display:none;border-color:var(--accent)">
-                    <h3 style="color:var(--accent);display:flex;justify-content:space-between;align-items:center">Új
-                        Akció Szervezése<button id="szezon-zaras-btn" class="btn btn-danger"
-                            style="display:none;padding:.4rem .8rem;font-size:.7rem" onclick="szezonzaras()">Szezon
-                            Zárása és Nullázás</button></h3>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <select id="uj-akcio-tipus" style="flex:1;min-width:150px;margin-bottom:0">
+                <div id="uj-akcio-box" class="card" style="display:none;">
+                    <h3 style="display:flex;justify-content:space-between;align-items:center; margin-top:0;">Új Esemény Szervezése
+                        <button id="szezon-zaras-btn" class="btn btn-danger" style="display:none;padding:.5rem 1rem;font-size:.8rem" onclick="szezonzaras()">Akciók archiválása</button>
+                    </h3>
+                    <div style="display:flex;gap:15px;flex-wrap:wrap; align-items:center;">
+                        <select id="uj-akcio-tipus" style="flex:1;min-width:150px;margin:0">
                             <option value="ATM">ATM</option>
                             <option value="BANK">BANK</option>
                             <option value="SZIGET">SZIGET</option>
                             <option value="KÚT">KÚT</option>
                         </select>
                         <div id="tervezes-box" style="display:none; flex:1; min-width:150px;">
-                            <input type="datetime-local" id="uj-akcio-ido" style="margin-bottom:0;" title="Hagyd üresen, ha most azonnal indul">
+                            <input type="datetime-local" id="uj-akcio-ido" style="margin:0;" title="Hagyd üresen, ha most azonnal indul">
                         </div>
-                        <button class="btn" style="border-color:var(--accent);color:var(--accent);flex:1;min-width:150px;" onclick="letrehozAkcio()">Esemény Indítása</button>
+                        <button class="btn btn-primary" style="flex:1;min-width:150px;" onclick="letrehozAkcio()">Esemény Indítása</button>
                     </div>
                 </div>
-                <div class="card" style="padding-bottom:10px"><input type="text" id="akcio-kereso"
-                        placeholder="Keresés (Név alapján a szervezők és résztvevők között)..."
-                        oninput="szuresAkciok(this.value)"></div>
+                <input type="text" id="akcio-kereso" placeholder="Keresés..." style="background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:12px 20px;" oninput="szuresAkciok(this.value)">
                 <div id="akciok-lista"></div>
             </div>
+            
             <div id="kassza-section" class="section">
                 <div class="card" style="text-align:center">
-                    <h1 id="balanceDisplay" style="font-size:3rem;color:var(--success);margin:0 0 20px 0">0 $</h1>
-                    <div id="kassza-controls" style="display:none;justify-content:center;gap:10px;flex-wrap:wrap"><input
-                            type="text" id="osszeg" placeholder="Összeg" style="width:200px;margin:0"
-                            oninput="formatNumber(this)"><button class="btn"
-                            style="border-color:var(--success);color:var(--success)"
-                            onclick="inditTranzakcio('be')">Befizetés</button><button class="btn btn-danger"
-                            onclick="inditTranzakcio('ki')">Kifizetés</button></div>
+                    <p style="color:var(--text-muted); margin-bottom:5px;">Jelenlegi egyenleg</p>
+                    <h1 id="balanceDisplay" style="font-size:3rem; font-weight:700; margin:0 0 25px 0">0 $</h1>
+                    <div id="kassza-controls" style="display:none;justify-content:center;gap:15px;flex-wrap:wrap">
+                        <input type="text" id="osszeg" placeholder="Összeg" style="width:200px;margin:0" oninput="formatNumber(this)">
+                        <button class="btn" style="background:var(--success); color:white;" onclick="inditTranzakcio('be')">Befizetés</button>
+                        <button class="btn btn-danger" onclick="inditTranzakcio('ki')">Kifizetés</button>
+                    </div>
                 </div>
                 <div class="card" style="padding:0;overflow:hidden">
-                    <div class="table-wrapper">
+                    <div class="table-wrapper" style="padding: 1rem;">
                         <table>
                             <thead>
                                 <tr>
@@ -642,27 +661,28 @@
                     </div>
                 </div>
             </div>
+            
             <div id="tagok-section" class="section">
-                <div id="tag-felvetel-box" class="card" style="display:none;border-color:var(--success)">
-                    <h3 style="color:var(--success);margin-top:0">Új tag felvétele</h3>
-                    <p style="font-size:.7rem;color:var(--text-muted);margin-bottom:10px">(Az alap jelszó: 123456)</p>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap"><input type="text" id="uj-tag-user"
-                            placeholder="Felhasználó név" style="flex:1;min-width:150px;margin:0"><input type="text"
-                            id="uj-tag-ic" placeholder="IC Név" style="flex:1;min-width:150px;margin:0"><input
-                            type="text" id="uj-tag-discord" placeholder="Discord"
-                            style="flex:1;min-width:150px;margin:0"><select id="uj-tag-rang-select"
-                            style="flex:1;min-width:150px;margin:0"></select><button class="btn"
-                            onclick="ujTagMentese()"
-                            style="border-color:var(--success);color:var(--success)">FELVÉTEL</button></div>
+                <div id="tag-felvetel-box" class="card" style="display:none;">
+                    <h3 style="margin-top:0">Új tag felvétele</h3>
+                    <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:15px">Alapértelmezett jelszó: 123456</p>
+                    <div style="display:flex;gap:15px;flex-wrap:wrap">
+                        <input type="text" id="uj-tag-user" placeholder="Felhasználó név" style="flex:1;min-width:150px;margin:0">
+                        <input type="text" id="uj-tag-ic" placeholder="IC Név" style="flex:1;min-width:150px;margin:0">
+                        <input type="text" id="uj-tag-discord" placeholder="Discord" style="flex:1;min-width:150px;margin:0">
+                        <select id="uj-tag-rang-select" style="flex:1;min-width:150px;margin:0"></select>
+                        <button class="btn btn-primary" onclick="ujTagMentese()">FELVÉTEL</button>
+                    </div>
                 </div>
                 <div class="card" style="padding:0;overflow:hidden">
-                    <div style="padding:1.5rem 1.5rem 0 1.5rem"><input type="text" id="tag-kereso"
-                            placeholder="Keresés..." oninput="szuresTagok(this.value)"></div>
-                    <div class="table-wrapper" style="border:none;border-top:1px solid var(--border);border-radius:0">
+                    <div style="padding:1.5rem; border-bottom:1px solid var(--border);">
+                        <input type="text" id="tag-kereso" placeholder="Keresés a tagok között..." style="margin:0; background:var(--surface-light); border-radius:99px;" oninput="szuresTagok(this.value)">
+                    </div>
+                    <div class="table-wrapper" style="padding: 1rem;">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>IC Név / Felhasználó</th>
+                                    <th>Tag adatai</th>
                                     <th>Rang</th>
                                     <th>Művelet</th>
                                 </tr>
@@ -672,38 +692,39 @@
                     </div>
                 </div>
             </div>
+            
             <div id="profil-section" class="section"></div>
+            
             <div id="jogok-section" class="section">
                 <div class="card" style="padding:0;overflow:hidden">
-                    <div style="padding:1.5rem">
-                        <h2
-                            style="color:var(--danger);display:flex;justify-content:space-between;align-items:center;margin-top:0;flex-wrap:wrap;gap:10px">
-                            ADMIN - Rangok <button class="btn"
-                                style="border-color:var(--success);color:var(--success);font-size:.8rem;padding:.5rem 1rem"
-                                onclick="mentesOsszesRangText()">MENTÉS</button></h2>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap"><input type="text" id="uj-rang-nev"
-                                placeholder="Új Rang Neve" style="width:200px;margin:0"><input type="number"
-                                id="uj-rang-prio" placeholder="Prio" style="width:100px;margin:0"><button class="btn"
-                                style="border-color:var(--accent);color:var(--accent)"
-                                onclick="letrehozRang()">Létrehozás</button></div>
+                    <div style="padding:1.5rem; border-bottom:1px solid var(--border);">
+                        <h2 style="display:flex;justify-content:space-between;align-items:center;margin:0;flex-wrap:wrap;gap:15px">
+                            ADMIN - Rangok és Jogok
+                            <button class="btn btn-primary" onclick="mentesOsszesRangText()">MENTÉS</button>
+                        </h2>
+                        <div style="display:flex;gap:15px;flex-wrap:wrap; margin-top:20px;">
+                            <input type="text" id="uj-rang-nev" placeholder="Új Rang Neve" style="width:200px;margin:0">
+                            <input type="number" id="uj-rang-prio" placeholder="Prio" style="width:100px;margin:0">
+                            <button class="btn" style="background:var(--surface-light);" onclick="letrehozRang()">Létrehozás</button>
+                        </div>
                     </div>
-                    <div class="table-wrapper" style="border:none;border-top:1px solid var(--border);border-radius:0">
+                    <div class="table-wrapper" style="padding:1rem;">
                         <table>
                             <thead>
                                 <tr>
-                                    <th title="A rang neve és hierarchia szintje">Rang (P)</th>
-                                    <th title="Heti kötelező befizetés a kasszába">Leadandó ($)</th>
-                                    <th title="Új hír posztolása a főoldalra">Hír Írás</th>
-                                    <th title="Bárki hírét törölheti a rendszerből">Hír Törlés</th>
-                                    <th title="Frakció számlára ki/be fizetés és tranzakciók látása">Kassza Kezelés</th>
-                                    <th title="Új tagok felvétele és leadandó lista látása">Tagfelvétel</th>
-                                    <th title="Admin panel elérése (Rangok és jogok módosítása)">Rangok (Admin)</th>
-                                    <th title="Mások adatainak (felhasználónév, IC név) módosítása">Adatmódosítás</th>
-                                    <th title="Új bank, ATM stb. akciók indítása és zárása">Akció Szervezés</th>
-                                    <th title="Előre megtervezett akció kiírása naptárral">Akció Tervezés</th>
-                                    <th title="A már lezárt és archivált akciók megtekintése">Akció Archívum</th>
-                                    <th title="WARN kiosztása, elvétele">Warn</th>
-                                    <th>Művelet</th>
+                                    <th>Rang (P)</th>
+                                    <th>Leadandó</th>
+                                    <th>Hír Írás</th>
+                                    <th>Hír Törlés</th>
+                                    <th>Kassza</th>
+                                    <th>Tagfelvétel</th>
+                                    <th>Admin</th>
+                                    <th>Adat</th>
+                                    <th>Szervezés</th>
+                                    <th>Tervezés</th>
+                                    <th>Archívum</th>
+                                    <th>Warn</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody id="jogok-lista"></tbody>
@@ -713,60 +734,78 @@
             </div>
         </div>
     </div>
+    
     <div id="edit-tag-modal" class="modal-overlay">
         <div class="modal-content">
-            <h2 style="color:var(--accent);margin-top:0">Tag Szerkesztése</h2>
-            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">Felhasználó név:</p><input type="text"
-                id="edit-tag-user">
-            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">IC Név:</p><input type="text"
-                id="edit-tag-ic">
-            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">Discord:</p><input type="text"
-                id="edit-tag-discord">
-            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">Rang:</p><select
-                id="edit-tag-rang"></select>
-            <div style="display:flex;gap:10px;margin-top:20px"><button class="btn"
-                    style="border-color:var(--accent);color:var(--accent)"
-                    onclick="veglegesitTagSzerkesztes()">Mentés</button><button class="btn"
-                    style="border:none;color:var(--text-muted)"
-                    onclick="document.getElementById('edit-tag-modal').style.display='none'">Mégse</button></div>
+            <h2 style="margin-top:0">Tag Szerkesztése</h2>
+            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">Felhasználó név:</p><input type="text" id="edit-tag-user">
+            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">IC Név:</p><input type="text" id="edit-tag-ic">
+            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">Discord:</p><input type="text" id="edit-tag-discord">
+            <p style="color:var(--text-muted);font-size:.8rem;margin:5px 0">Rang:</p><select id="edit-tag-rang"></select>
+            <div style="display:flex;gap:10px;margin-top:20px">
+                <button class="btn btn-primary" onclick="veglegesitTagSzerkesztes()">Mentés</button>
+                <button class="btn" onclick="document.getElementById('edit-tag-modal').style.display='none'">Mégse</button>
+            </div>
         </div>
     </div>
+    
     <div id="kassza-modal" class="modal-overlay">
         <div class="modal-content">
-            <h2 id="modal-osszeg-display" style="margin-top:0"></h2><select id="igazolas-tipus"
-                onchange="valtsIgazolasTipus(this.value)">
+            <h2 id="modal-osszeg-display" style="margin-top:0; font-weight:700;"></h2>
+            <select id="igazolas-tipus" onchange="valtsIgazolasTipus(this.value)">
                 <option value="link">Link (Imgur/Discord)</option>
                 <option value="szoveg">Megjegyzés</option>
             </select>
-            <div id="igazolas-input-container"><input type="text" id="kassza-bizonyitek" placeholder="https://...">
+            <div id="igazolas-input-container">
+                <input type="text" id="kassza-bizonyitek" placeholder="https://...">
             </div>
-            <div style="display:flex;gap:10px;margin-top:20px"><button class="btn"
-                    style="border-color:var(--success);color:var(--success)"
-                    onclick="veglegesitTranzakcio()">Megerősítés</button><button class="btn"
-                    style="border:none;color:var(--text-muted)" onclick="zárKasszaModal()">Mégse</button></div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+                <button class="btn btn-primary" onclick="veglegesitTranzakcio()">Megerősítés</button>
+                <button class="btn" onclick="zárKasszaModal()">Mégse</button>
+            </div>
         </div>
     </div>
+    
     <div id="profil-modal" class="modal-overlay" onclick="this.style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="modal-ic" style="color:var(--accent);margin:0"></h2>
-            <p id="modal-user" style="color:var(--text-muted);font-size:.8rem;margin:5px 0"></p>
-            <p id="modal-rang" style="color:var(--text);font-weight:700"></p>
-            <p style="color:var(--text-muted)">DC: <span id="modal-discord" style="color:var(--text)"></span></p>
-            <div style="margin:15px 0;display:flex;gap:10px;color:var(--accent);background:var(--surface-light);padding:15px;border-radius:8px;flex-wrap:wrap;">
-                <div style="flex:1; min-width:120px;"><strong>Összes<br>Szervezett:</strong> <br><span id="modal-szervezett" style="color:var(--text); font-size:1.5rem;">0</span></div>
-                <div style="flex:1; min-width:120px;"><strong>Összes<br>Résztvett:</strong> <br><span id="modal-resztvett" style="color:var(--text); font-size:1.5rem;">0</span></div>
-                <div style="flex:1; min-width:120px; border-left:1px solid rgba(255,255,255,0.1); padding-left:10px;"><strong>14 napos<br>Szervezett:</strong> <br><span id="modal-14-szervezett" style="color:var(--warn); font-size:1.5rem;">0</span></div>
-                <div style="flex:1; min-width:120px;"><strong>14 napos<br>Résztvett:</strong> <br><span id="modal-14-resztvett" style="color:var(--warn); font-size:1.5rem;">0</span></div>
+            <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                <div style="width:60px; height:60px; border-radius:50%; background:var(--surface-light); display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:var(--text-muted);">
+                    👤
+                </div>
+                <div>
+                    <h2 id="modal-ic" style="margin:0; font-weight:600;"></h2>
+                    <p id="modal-user" style="color:var(--text-muted);font-size:.9rem;margin:2px 0"></p>
+                    <span id="modal-rang" class="role-badge" style="margin-left:0; margin-top:5px;"></span>
+                </div>
             </div>
-            <div id="modal-leiras"
-                style="background:rgba(0,0,0,0.2);padding:1rem;border:1px solid var(--border);border-radius:8px;min-height:80px;color:var(--text-muted);white-space:pre-wrap">
+            
+            <p style="color:var(--text-muted); margin-bottom:20px;">Discord: <span id="modal-discord" style="color:var(--text)"></span></p>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+                <div class="card" style="margin:0; padding:15px; text-align:center;">
+                    <p style="color:var(--text-muted); font-size:0.8rem; margin:0 0 5px 0;">Összes Szervezett</p>
+                    <h3 id="modal-szervezett" style="margin:0; font-size:1.5rem;">0</h3>
+                </div>
+                <div class="card" style="margin:0; padding:15px; text-align:center;">
+                    <p style="color:var(--text-muted); font-size:0.8rem; margin:0 0 5px 0;">Összes Résztvett</p>
+                    <h3 id="modal-resztvett" style="margin:0; font-size:1.5rem;">0</h3>
+                </div>
+                <div class="card" style="margin:0; padding:15px; text-align:center;">
+                    <p style="color:var(--warn); font-size:0.8rem; margin:0 0 5px 0;">14 napos Szervezett</p>
+                    <h3 id="modal-14-szervezett" style="margin:0; font-size:1.5rem;">0</h3>
+                </div>
+                <div class="card" style="margin:0; padding:15px; text-align:center;">
+                    <p style="color:var(--warn); font-size:0.8rem; margin:0 0 5px 0;">14 napos Résztvett</p>
+                    <h3 id="modal-14-resztvett" style="margin:0; font-size:1.5rem;">0</h3>
+                </div>
             </div>
-            <div id="modal-warns" style="margin-top:20px"></div><button class="btn"
-                style="width:100%;margin-top:20px;border-color:var(--text-muted);color:var(--text-muted)"
-                onclick="document.getElementById('profil-modal').style.display='none'">Bezárás</button>
+            
+            <div id="modal-leiras" style="background:var(--surface-light);padding:1.2rem;border-radius:var(--radius-sm);min-height:80px;color:var(--text-muted);white-space:pre-wrap; font-size:0.9rem;"></div>
+            <div id="modal-warns" style="margin-top:20px"></div>
+            
+            <button class="btn" style="width:100%;margin-top:20px;" onclick="document.getElementById('profil-modal').style.display='none'">Bezárás</button>
         </div>
     </div>
-
 <script>
     let myUserId, myUserName, myUserRang, myPermissions, editTargetId = null, ALL_RANGS = [], ALL_TAGOK = [], ALL_AKCIOK = [];
 
@@ -804,7 +843,7 @@
         } catch (e) {}
     }
 
-    async function bejelentkezes() {
+async function bejelentkezes() {
         const n = document.getElementById('login-user').value;
         const j = document.getElementById('login-pass').value;
         const r = await fetch('/api/login', {
@@ -823,6 +862,7 @@
                 tab('password-screen', null);
             } else {
                 localStorage.setItem('klani_token', d.token);
+                sessionStorage.setItem('welcome_name', d.ic_nev || n); 
                 location.reload();
             }
         } else {
@@ -851,7 +891,7 @@
             myUserName = d.ic_nev || d.nev;
             myUserRang = d.rang;
             myPermissions = d;
-            document.getElementById('logged-in-user').innerText = 'Felhasználó: ' + myUserName;
+            document.getElementById('logged-in-user').innerHTML = `<div style="width:28px; height:28px; background:var(--surface-light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size: 0.8rem; border: 1px solid var(--border);">U</div><span>${myUserName}</span>`;
             document.getElementById('header-rang').innerText = 'RANG: ' + myUserRang;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
@@ -872,7 +912,7 @@
                 const tbb = document.getElementById('tervezes-box');
                 if (tbb) tbb.style.display = 'block';
             }
-            if (myUserRang === 'DEV') {
+            if (myUserRang === 'DEV' || myUserRang === 'Keshilli i Vjeter') {
                 const szb = document.getElementById('szezon-zaras-btn');
                 if (szb) szb.style.display = 'block';
             }
@@ -902,20 +942,13 @@
             fetchProfil();
             fetchAkciok();
             fetchLeadando();
-        }
-    };
-
-    async function manualisLeadandoZaras() {
-        if (confirm("FIGYELEM!\n\nBiztosan lezárod a hetet? Ez MINDENKINÉL lenullázza a leadandót, és automatikusan kiosztja a büntetéseket!")) {
-            const r = await apiFetch('/api/leadando_zaras', { method: 'POST' });
-            if (r) {
-                const d = await r.json();
-                alert(`Sikeres zárás! Kiosztott büntetések száma: ${d.kiosztva} db.`);
-                fetchLeadando();
-                if (myPermissions && myPermissions.jog_warn) fetchWarnList();
+            const welcomeName = sessionStorage.getItem('welcome_name');
+            if (welcomeName) {
+                udvozloUzenet(welcomeName);
+                sessionStorage.removeItem('welcome_name');
             }
         }
-    }
+    };
 
     async function fetchLeadando() {
         try {
@@ -931,17 +964,14 @@
             if (m && kij) {
                 const b = m.heti_leadva || 0, k = m.kotelezo || 0;
                 if (k === 0) {
-                    kij.innerHTML = `<span style="color:var(--text-muted)">Nincsen kötelező leadandód!</span>`;
-                    if (nBtn) nBtn.classList.remove('nav-btn-warn');
+                    kij.innerHTML = `<span style="color:var(--text-muted)">Nincsen kötelező leadandód</span>`;
                     if (gDob) gDob.style.display = 'none';
                 } else {
                     if (gDob) gDob.style.display = 'flex';
                     if (b >= k) {
-                        kij.innerHTML = `<span style="color:var(--success)">Teljesítve: ${b.toLocaleString()} $ / ${k.toLocaleString()} $</span>`;
-                        if (nBtn) nBtn.classList.remove('nav-btn-warn');
+                        kij.innerHTML = `<span style="color:var(--success)">${b.toLocaleString()} $ / ${k.toLocaleString()} $</span>`;
                     } else {
-                        kij.innerHTML = `<span style="color:var(--danger)">Hiányzik: ${b.toLocaleString()} $ / ${k.toLocaleString()} $</span>`;
-                        if (nBtn) nBtn.classList.add('nav-btn-warn');
+                        kij.innerHTML = `<span style="color:var(--danger)">${b.toLocaleString()} $ / ${k.toLocaleString()} $</span>`;
                     }
                 }
             }
@@ -952,13 +982,10 @@
                     const b = x.heti_leadva || 0, k = x.kotelezo || 0;
                     if (k === 0) return;
                     const ksz = b >= k;
-                    aL.innerHTML += `<tr><td><strong style="color:var(--accent)">${x.ic_nev || x.nev}</strong></td><td>${x.rang}</td><td style="color:${ksz ? 'var(--success)' : 'var(--danger)'}">${b.toLocaleString()} $</td><td style="color:var(--text-muted)">${k.toLocaleString()} $</td><td>${ksz ? '<span style="color:var(--success); font-weight:bold;">✔️</span>' : '<span style="color:var(--danger); font-weight:bold;">❌</span>'}</td></tr>`;
+                    aL.innerHTML += `<tr><td><strong>${x.ic_nev || x.nev}</strong></td><td><span class="role-badge">${x.rang}</span></td><td style="color:${ksz ? 'var(--success)' : 'var(--danger)'}">${b.toLocaleString()} $</td><td style="color:var(--text-muted)">${k.toLocaleString()} $</td><td>${ksz ? '<span style="color:var(--success); font-weight:bold;">✔️</span>' : '<span style="color:var(--danger); font-weight:bold;">❌</span>'}</td></tr>`;
                 });
             }
-        } catch (e) {
-            const k = document.getElementById('leadando-sajat-display');
-            if (k) k.innerHTML = "<span style='color:red'>Hiba a betöltéskor!</span>";
-        }
+        } catch (e) {}
     }
 
     async function inditLeadando() {
@@ -967,7 +994,6 @@
         const o = oI ? oI.value.replace(/\s/g, "") : 0;
         const l = lI ? lI.value : '';
         if (!o || isNaN(o) || parseInt(o) <= 0) return alert("Érvénytelen összeg!");
-        if (lI && (!l || !l.startsWith('http'))) return alert("Érvénytelen link!");
         if (confirm(`Megerősíted ${parseInt(o).toLocaleString()}$ befizetését?`)) {
             await apiFetch('/api/leadando', { method: 'POST', body: JSON.stringify({ osszeg: o, bizonyitek: l || 'Nincs link' }) });
             alert("Sikeres rögzítés!");
@@ -988,13 +1014,13 @@
         w.forEach(x => {
             const iE = x.lejaret && new Date(x.lejaret) < new Date();
             const iA = x.aktiv && !iE;
-            let b = iA ? '<span class="badge badge-active">AKTÍV</span>' : '<span class="badge badge-expired">LEJÁRT/VISSZAVONT</span>';
-            let m = iA ? `<button class="btn btn-warn" style="padding:0.2rem 0.5rem; font-size:0.7rem;" onclick="vonWarn(${x.id})">Visszavonás</button>` : '';
-            m += ` <button class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.7rem; border:none;" onclick="torolWarn(${x.id})">🗑️</button>`;
+            let b = iA ? '<span class="badge badge-active">AKTÍV</span>' : '<span class="badge badge-expired">LEJÁRT</span>';
+            let m = iA ? `<button class="btn btn-warn" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="vonWarn(${x.id})">Visszavonás</button>` : '';
+            m += ` <button class="btn btn-danger" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="torolWarn(${x.id})">Törlés</button>`;
             const tT = ALL_TAGOK.find(y => y.id === x.tag_id);
             const tN = tT ? (tT.ic_nev || tT.nev) : 'Törölt Tag';
             let lS = x.lejaret ? new Date(x.lejaret).toLocaleDateString() : 'Végleges';
-            tb.innerHTML += `<tr><td style="color:var(--text-muted)">${new Date(x.datum).toLocaleDateString()}</td><td><strong style="color:var(--text)">${tN}</strong></td><td>${x.szervezo_nev}</td><td>${lS}</td><td>${b}</td><td>${m}</td></tr><tr><td colspan="6" style="padding-top:0; border-top:none; color:var(--text-muted); font-size:0.8rem;">Indok: <em>${x.indok}</em></td></tr>`;
+            tb.innerHTML += `<tr><td style="color:var(--text-muted); font-size:0.9rem;">${new Date(x.datum).toLocaleDateString()}</td><td><strong>${tN}</strong><div style="color:var(--text-muted); font-size:0.8rem; margin-top:4px;">Indok: <em>${x.indok}</em></div></td><td style="color:var(--text-muted);">${x.szervezo_nev}</td><td>${lS}</td><td>${b}</td><td>${m}</td></tr>`;
         });
     }
 
@@ -1030,11 +1056,11 @@
             c.innerHTML = '';
             return;
         }
-        let h = '<h3 style="color:var(--warn); margin-bottom:10px; font-size:1rem;">Figyelmeztetések</h3><div style="display:flex; flex-direction:column; gap:10px;">';
+        let h = '<h3 style="margin-bottom:15px; font-size:1rem; border-bottom:1px solid var(--border); padding-bottom:10px;">Figyelmeztetések</h3><div style="display:flex; flex-direction:column; gap:10px;">';
         w.forEach(x => {
             let b = x.aktiv_allapot ? '<span class="badge badge-active">AKTÍV</span>' : '<span class="badge badge-expired">LEJÁRT</span>';
             let lS = x.lejaret ? new Date(x.lejaret).toLocaleDateString() : 'Végleges';
-            h += `<div style="background:rgba(251, 191, 36, 0.05); border:1px solid rgba(251, 191, 36, 0.2); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">${b} <small style="color:var(--text-muted)">Lejárat: ${lS}</small></div><div style="color:var(--text); font-size:0.9rem;"><strong>Indok:</strong> ${x.indok}</div><div style="color:var(--text-muted); font-size:0.7rem; margin-top:5px; text-align:right;">Osztotta: ${x.szervezo_nev} - ${new Date(x.datum).toLocaleDateString()}</div></div>`;
+            h += `<div style="background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.2); padding:15px; border-radius:var(--radius-sm);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">${b} <small style="color:var(--warn)">Lejárat: ${lS}</small></div><div style="color:var(--text); font-size:0.9rem; line-height:1.5;">${x.indok}</div><div style="color:var(--text-muted); font-size:0.8rem; margin-top:8px;">Osztotta: ${x.szervezo_nev}</div></div>`;
         });
         c.innerHTML = h + '</div>';
     }
@@ -1043,14 +1069,14 @@
         const a = ALL_TAGOK.find(x => x.id === id);
         if (a) {
             document.getElementById('modal-ic').innerText = a.ic_nev || '-';
-            document.getElementById('modal-user').innerText = 'User: ' + a.nev;
+            document.getElementById('modal-user').innerText = '@' + a.nev;
             document.getElementById('modal-rang').innerText = a.rang;
             document.getElementById('modal-discord').innerText = a.discord || '-';
         }
-        document.getElementById('modal-szervezett').innerText = '...';
-        document.getElementById('modal-resztvett').innerText = '...';
-        document.getElementById('modal-14-szervezett').innerText = '...';
-        document.getElementById('modal-14-resztvett').innerText = '...';
+        document.getElementById('modal-szervezett').innerText = '-';
+        document.getElementById('modal-resztvett').innerText = '-';
+        document.getElementById('modal-14-szervezett').innerText = '-';
+        document.getElementById('modal-14-resztvett').innerText = '-';
         document.getElementById('modal-leiras').innerText = 'Betöltés...';
         document.getElementById('modal-warns').innerHTML = '';
         document.getElementById('profil-modal').style.display = 'flex';
@@ -1068,64 +1094,65 @@
     }
 
 async function fetchProfil() {
-        const r = await apiFetch(`/api/profil/${myUserId}`);
-        const p = await r.json();
-        const tooltipOsszesSzervezett = `<div class="tooltip" style="display:inline-block; margin-left:5px;"><span style="color:var(--text-muted); cursor:help; font-size:1rem;">ⓘ</span><span class="tooltiptext" style="width:220px; font-weight:normal; font-size:0.85rem; text-transform:none; line-height:1.4;">Ez a szám mutatja, hogy a kezdetek óta összesen hány akciót <b>SZERVEZTÉL</b> (aktív, lezárt).</span></div>`;
-        
-        const tooltipOsszesResztvett = `<div class="tooltip" style="display:inline-block; margin-left:5px;"><span style="color:var(--text-muted); cursor:help; font-size:1rem;">ⓘ</span><span class="tooltiptext" style="width:220px; font-weight:normal; font-size:0.85rem; text-transform:none; line-height:1.4;">Ez a szám mutatja, hogy a kezdetek óta összesen hány akción <b>VETTÉL RÉSZT</b> (aktív, lezárt).</span></div>`;
-        
-        const tooltip14NaposSzervezett = `<div class="tooltip" style="display:inline-block; margin-left:5px;"><span style="color:var(--text-muted); cursor:help; font-size:1rem;">ⓘ</span><span class="tooltiptext" style="width:220px; font-weight:normal; font-size:0.85rem; text-transform:none; line-height:1.4;">Ez a szám mutatja, hogy az elmúlt 14 napban hány akciót <b>SZERVEZTÉL</b>. A 14 napnál régebbi akciók automatikusan kiesnek.</span></div>`;
-        
-        const tooltip14NaposResztvett = `<div class="tooltip" style="display:inline-block; margin-left:5px;"><span style="color:var(--text-muted); cursor:help; font-size:1rem;">ⓘ</span><span class="tooltiptext" style="width:220px; font-weight:normal; font-size:0.85rem; text-transform:none; line-height:1.4;">Ez a szám mutatja, hogy az elmúlt 14 napban hány akción <b>VETTÉL RÉSZT</b>. A 14 napnál régebbi akciók automatikusan kiesnek.</span></div>`;
-
-        let h = `<div class="card">
-            <h2 style="color:var(--accent); margin-top:0;">Saját Profil</h2>
-            
-            <div style="display:flex; align-items:center; gap:25px; flex-wrap:wrap; margin: 25px 0; padding:15px 20px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; font-size:1.1rem;">
-                <div><strong style="color:var(--text-muted);">IC Név:</strong> <span style="color:var(--text);">${p.ic_nev || '-'}</span></div>
-                <div><strong style="color:var(--text-muted);">User:</strong> <span style="color:var(--accent); font-weight:bold;">${p.nev}</span></div>
-                <div><strong style="color:var(--text-muted);">Rang:</strong> <span style="color:white; border:1px solid var(--border); padding:0.2rem 0.8rem; border-radius:50px; background:rgba(255,255,255,0.05); font-size:0.9rem; margin-left:5px;">${p.rang}</span></div>
-                <div><strong style="color:var(--text-muted);">Discord ID:</strong> <span style="color:var(--text);">${p.discord || '-'}</span></div>
+    const r = await apiFetch(`/api/profil/${myUserId}`);
+    const p = await r.json();
+    
+    let h = `<div class="card" style="padding:0; overflow:hidden;">
+        <div style="padding: 2.5rem 2rem; background: linear-gradient(to bottom, rgba(59, 130, 246, 0.1), transparent);">
+            <div style="display:flex; align-items:center; gap:20px;">
+                <div style="width:80px; height:80px; border-radius:50%; background:var(--surface-light); display:flex; align-items:center; justify-content:center; font-size:2rem; border:1px solid var(--border);">👤</div>
+                <div>
+                    <h2 style="margin: 0 0 5px 0; font-size:1.8rem;">${p.ic_nev || '-'}</h2>
+                    <p style="margin:0; color:var(--text-muted);">@${p.nev} <span class="role-badge" style="margin-left:10px;">${p.rang}</span></p>
+                </div>
             </div>
+        </div>
+        
+        <div style="padding: 2rem;">
+            <p style="color:var(--text-muted); margin-bottom:20px;">Discord: <span style="color:var(--text);">${p.discord || '-'}</span></p>
             
-            <div style="display:flex; gap:10px; margin-top:20px; padding:20px; background:rgba(0, 210, 255, 0.05); border-radius:8px; color:var(--accent); border:1px solid rgba(0,210,255,0.1); flex-wrap:wrap;">
-                <div style="flex:1; min-width:120px;">
-                    <strong style="display:flex; align-items:center;">Összes Szervezett: ${tooltipOsszesSzervezett}</strong>
-                    <br><span style="color:white; font-size:1.5rem; font-weight:bold;">${p.akcio_szervezett || 0}</span>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:15px; margin-bottom: 30px;">
+                <div style="background:var(--surface-light); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid var(--border);">
+                    <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:5px;">Összes Szervezett <div class="tooltip"><span style="color:var(--text-muted); cursor:help; font-size:0.85rem;">ⓘ</span><span class="tooltiptext">Kezdetek óta összesen ennyi akciót <b>SZERVEZTÉL</b>.</span></div></p>
+                    <span style="font-size:1.8rem; font-weight:700;">${p.akcio_szervezett || 0}</span>
                 </div>
-                <div style="flex:1; min-width:120px;">
-                    <strong style="display:flex; align-items:center;">Összes Résztvett: ${tooltipOsszesResztvett}</strong>
-                    <br><span style="color:white; font-size:1.5rem; font-weight:bold;">${p.akcio_resztvett || 0}</span>
+                <div style="background:var(--surface-light); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid var(--border);">
+                    <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-muted); display:flex; align-items:center; gap:5px;">Összes Résztvett <div class="tooltip"><span style="color:var(--text-muted); cursor:help; font-size:0.85rem;">ⓘ</span><span class="tooltiptext">Kezdetek óta összesen ennyi akción <b>VETTÉL RÉSZT</b>.</span></div></p>
+                    <span style="font-size:1.8rem; font-weight:700;">${p.akcio_resztvett || 0}</span>
                 </div>
-                <div style="flex:1; min-width:120px; border-left:1px solid rgba(0,210,255,0.2); padding-left:10px;">
-                    <strong style="display:flex; align-items:center;">14 Napos Szervezett: ${tooltip14NaposSzervezett}</strong>
-                    <br><span style="color:var(--warn); font-size:1.5rem; font-weight:bold;">${p.heti2_szervezett || 0}</span>
+                <div style="background:rgba(245, 158, 11, 0.05); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid rgba(245, 158, 11, 0.2);">
+                    <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--warn); display:flex; align-items:center; gap:5px;">14 Napos Szervezett <div class="tooltip"><span style="color:var(--warn); cursor:help; font-size:0.85rem;">ⓘ</span><span class="tooltiptext">Az elmúlt 14 napban ennyi akciót <b>SZERVEZTÉL</b>.</span></div></p>
+                    <span style="font-size:1.8rem; font-weight:700; color:var(--warn);">${p.heti2_szervezett || 0}</span>
                 </div>
-                <div style="flex:1; min-width:120px;">
-                    <strong style="display:flex; align-items:center;">14 Napos Résztvett: ${tooltip14NaposResztvett}</strong>
-                    <br><span style="color:var(--warn); font-size:1.5rem; font-weight:bold;">${p.heti2_resztvett || 0}</span>
+                <div style="background:rgba(245, 158, 11, 0.05); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid rgba(245, 158, 11, 0.2);">
+                    <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--warn); display:flex; align-items:center; gap:5px;">14 Napos Résztvett <div class="tooltip"><span style="color:var(--warn); cursor:help; font-size:0.85rem;">ⓘ</span><span class="tooltiptext">Az elmúlt 14 napban ennyi akción <b>VETTÉL RÉSZT</b>.</span></div></p>
+                    <span style="font-size:1.8rem; font-weight:700; color:var(--warn);">${p.heti2_resztvett || 0}</span>
                 </div>
             </div>
             
-            <div id="sajat-warns" style="margin-top:20px; margin-bottom:20px;"></div>
+            <div id="sajat-warns" style="margin-bottom:25px;"></div>
             
-            <p style="color:var(--text-muted); margin:0 0 10px 0;">Bemutatkozás / Jegyzet:</p>
-            <textarea id="input-bemutatkozas" rows="6" placeholder="Írj magadról vagy jegyzetelj...">${p.bemutatkozas || ''}</textarea>
-            <button class="btn" style="width: 100%; border-color:var(--accent); color:white; background:rgba(0,210,255,0.1); margin-bottom: 25px; letter-spacing:2px;" onclick="mentesProfil()">Mentés</button>
+            <h3 style="margin-top:0; font-size:1rem;">Bemutatkozás / Jegyzet</h3>
+            <textarea id="input-bemutatkozas" rows="4" placeholder="Írj magadról vagy jegyzetelj...">${p.bemutatkozas || ''}</textarea>
+            <button class="btn btn-primary" onclick="mentesProfil()">Profil Mentése</button>
             
-            <div style="padding:20px; background:rgba(255, 45, 85, 0.03); border: 1px solid rgba(255, 45, 85, 0.2); border-radius:8px; margin-top:10px;">
-                <h3 style="color:var(--danger); margin-top:0; font-size:1.3rem; text-shadow:0 0 10px var(--danger);">Jelszó Módosítása</h3>
-                <input type="password" id="profil-uj-jelszo" placeholder="Új jelszó...">
-                <button class="btn btn-danger" style="width:100%; letter-spacing:2px;" onclick="profilJelszocsere()">Mentés</button>
+            <hr style="border:none; border-top:1px solid var(--border); margin: 30px 0;">
+            
+            <h3 style="margin-top:0; font-size:1rem; color:var(--danger);">Jelszó változtatás</h3>
+            <div style="display:flex; gap:15px; max-width:400px;">
+                <input type="password" id="profil-uj-jelszo" placeholder="Új jelszó..." style="margin:0;">
+                <button class="btn btn-danger" onclick="profilJelszocsere()">Módosítás</button>
             </div>
-        </div>`;
-        
-        const ps = document.getElementById('profil-section');
-        if (ps) {
-            ps.innerHTML = h;
-            renderWarnokProfilon('sajat-warns', p.warnings);
-        }
+        </div>
+    </div>`;
+    
+    const ps = document.getElementById('profil-section');
+    if (ps) {
+        ps.innerHTML = h;
+        renderWarnokProfilon('sajat-warns', p.warnings);
     }
+    frissitAktivitasMeter(p);
+}
 
     async function mentesProfil() {
         await apiFetch(`/api/profil/${myUserId}`, { method: 'PUT', body: JSON.stringify({ bemutatkozas: document.getElementById('input-bemutatkozas').value }) });
@@ -1150,71 +1177,145 @@ async function fetchProfil() {
         const c = document.getElementById('akciok-lista');
         if (!c) return;
         c.innerHTML = '';
+        
         const aA = l.filter(x => x.aktiv && !x.archivalva);
         const lA = l.filter(x => !x.aktiv && !x.archivalva);
         const arA = l.filter(x => x.archivalva);
         const aG = document.getElementById('nav-akcio');
-        
         if (aG) {
             if (aA.length > 0) aG.classList.add('nav-btn-alert');
             else aG.classList.remove('nav-btn-alert');
         }
         
-        let h = `<h3 style="color:var(--success); border-bottom:1px solid var(--border); padding-bottom:10px;">Aktív Akciók</h3>`;
-        if (aA.length === 0) h += `<p style="color:var(--text-muted); text-align:center; padding:20px; background:rgba(0,0,0,0.2); border-radius:8px;">${iS ? 'Nincs találat.' : 'Nincs akció.'}</p>`;
-        else aA.forEach(x => h += generalAkcioCard(x));
-        
-        if (myPermissions.jog_lezart_akcio || myUserRang === 'DEV') {
-            h += `<h3 style="color:var(--danger); border-bottom:1px solid var(--border); padding-bottom:10px; margin-top:30px;">Lezárt Akciók</h3>`;
-            if (lA.length === 0) h += `<p style="color:var(--text-muted)">${iS ? 'Nincs találat.' : 'Nincs lezárt.'}</p>`;
-            else lA.forEach(x => h += generalAkcioCard(x));
+        let h = `<h3 style="margin: 20px 0 10px 0; font-size:1rem; color:var(--text-muted);">AKTÍV ESEMÉNYEK</h3>`;
+        if (aA.length === 0) h += `<p style="color:var(--text-muted); font-size:0.9rem;">Nincs aktív esemény.</p>`;
+        else aA.forEach(x => h += generalAkcioCard(x, true));
+
+        if (myPermissions.jog_lezart_akcio || myUserRang === 'DEV' || myUserRang === 'Keshilli i Vjeter') {
+            h += `<h3 style="margin: 30px 0 10px 0; font-size:1rem; color:var(--text-muted);">LEZÁRT ESEMÉNYEK</h3>`;
+            if (lA.length === 0) h += `<p style="color:var(--text-muted); font-size:0.9rem;">Nincs lezárt esemény.</p>`;
+            else lA.forEach(x => h += generalAkcioCard(x, true)); 
             
             if (iS) {
-                h += `<h3 style="color:var(--text-muted); border-bottom:1px solid var(--border); padding-bottom:10px; margin-top:30px;">Archivált Akciók (Keresés)</h3>`;
-                if (arA.length === 0) h += `<p style="color:var(--text-muted)">Nincs találat.</p>`;
-                else arA.forEach(x => h += generalAkcioCard(x));
+                h += `<h3 style="margin: 30px 0 10px 0; font-size:1rem; color:var(--text-muted);">ARCHIVÁLT ESEMÉNYEK (Keresés: ${arA.length} db)</h3>`;
+                if (arA.length === 0) h += `<p style="color:var(--text-muted); font-size:0.9rem;">Nincs találat az archívumban.</p>`;
+                else arA.forEach(x => h += generalAkcioCard(x, true));
             } else {
-                h += `<div style="margin-top:40px; border-top: 1px dashed var(--border); padding-top:20px;"><button class="btn" style="width:100%; border-color:var(--text-muted); color:var(--text-muted);" onclick="toggleArchivum()">ARCHIVÁLT AKCIÓK</button></div><div id="archivum-container" style="display:none; margin-top:20px;"><h3 style="color:var(--text-muted)">Archivált Akciók</h3>`;
-                if (arA.length === 0) h += `<p style="color:var(--text-muted)">Üres archívum.</p>`;
-                else arA.forEach(x => h += generalAkcioCard(x));
+                h += `<div style="margin-top:30px; border-top: 1px dashed var(--border); padding-top:15px; text-align:center;">
+                        <button class="btn" style="border:1px solid var(--border); color:var(--text-muted); background:transparent; font-size:0.8rem;" onclick="toggleArchivum()">Archivált események mutatása/elrejtése</button>
+                      </div>
+                      <div id="archivum-container" style="display:none; margin-top:20px;">
+                        <h3 style="margin: 0 0 10px 0; font-size:1rem; color:var(--text-muted);">ARCHIVÁLT ESEMÉNYEK</h3>`;
+                if (arA.length === 0) h += `<p style="color:var(--text-muted); font-size:0.9rem;">Üres archívum.</p>`;
+                else arA.forEach(x => h += generalAkcioCard(x, true));
                 h += `</div>`;
             }
         }
+
         c.innerHTML = h;
     }
 
-    function generalAkcioCard(a) {
-        let rH = a.resztvevok.map(x => `<li style="color:var(--text-muted);"><strong style="color:var(--text);">${x.ic_nev || x.nev}</strong> - <small>${new Date(x.ido).toLocaleTimeString()}</small></li>`).join('');
+    function toggleArchivum() {
+        const a = document.getElementById('archivum-container');
+        if (a) a.style.display = a.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function generalAkcioCard(a, isCompact = true) {
+        let isOrganizerOrAdmin = (a.szervezo_id === myUserId || myUserRang === 'DEV' || (myPermissions && myPermissions.jog_admin));
+
+        let rH = a.resztvevok.map(x => {
+            let kickBtn = (isOrganizerOrAdmin && a.aktiv && !a.archivalva) ? `<button class="btn btn-danger" style="padding:0.2rem 0.6rem; font-size:0.6rem; border:none; margin-left:auto; cursor:pointer; background:rgba(239,68,68,0.2); color:var(--danger); border-radius:6px;" onclick="eltavolitAkciobol(${a.id}, ${x.id}); event.stopPropagation();">KICK</button>` : '';
+            return `<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;"><div style="width:24px; height:24px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--text-muted);">U</div> <span style="font-size:0.9rem; color:var(--text);">${x.ic_nev || x.nev}</span> <small style="color:var(--text-muted); ${kickBtn ? '' : 'margin-left:auto;'}">${new Date(x.ido).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>${kickBtn}</div>`;
+        }).join('');
+
+        let addSection = '';
+        if (isOrganizerOrAdmin && a.aktiv && !a.archivalva) {
+            let options = ALL_TAGOK.filter(t => !a.resztvevok.some(r => r.id === t.id) && t.rang !== 'DEV').map(t => `<option value="${t.id}">${t.ic_nev || t.nev}</option>`).join('');
+            addSection = `
+            <div style="margin-top:15px; display:flex; gap:10px; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:15px;" onclick="event.stopPropagation();">
+                <select id="add-user-${a.id}" style="flex:1; padding:0.6rem; border-radius:8px; border:1px solid var(--border); background:rgba(0,0,0,0.5); color:var(--text); font-size:0.85rem; margin:0;">
+                    <option value="">-- Kézi hozzáadás --</option>
+                    ${options}
+                </select>
+                <button class="btn" style="padding:0.6rem 1rem; font-size:0.8rem; background:var(--accent); color:white; border-radius:8px; border:none;" onclick="hozzaadAkciohoz(${a.id}); event.stopPropagation();">Hozzáad</button>
+            </div>`;
+        }
+
         let g = '';
         if (a.aktiv && !a.archivalva) {
             const b = a.resztvevok.find(x => x.id === myUserId);
-            if (a.szervezo_id === myUserId) {
-                g += `<span style="color:var(--accent); font-weight:bold; margin-right:10px;">Te vagy a szervező</span>`;
-            } else if (!b) {
-                g += `<button class="btn" style="padding:0.4rem 0.8rem; font-size:0.7rem; border-color:var(--accent); color:var(--accent);" onclick="csatlakozikAkcio(${a.id})">Jelentkezés</button>`;
-            } else {
-                g += `<button class="btn btn-warn" style="padding:0.4rem 0.8rem; font-size:0.7rem; margin-right:10px;" onclick="kilepAkcio(${a.id})">Kijelentkezés</button>`;
-            }
+            if (a.szervezo_id === myUserId) g += `<span class="role-badge" style="background:rgba(255,255,255,0.1); color:white;">Szervező</span>`;
+            else if (!b) g += `<button class="btn btn-primary" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="csatlakozikAkcio(${a.id}); event.stopPropagation();">Jelentkezés</button>`;
+            else g += `<button class="btn" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="kilepAkcio(${a.id}); event.stopPropagation();">Kijelentkezés</button>`;
+            
             if (myPermissions.jog_akcio || myUserRang === 'DEV') {
-                g += ` <button class="btn btn-danger" style="padding:0.4rem 0.8rem; font-size:0.7rem;" onclick="zarAkcio(${a.id})">ZÁRÁS</button>`;
-            }
-        } else if (a.archivalva) {
-            g = `<span style="color:var(--text-muted); font-weight:bold;">[ ARCHIVÁLVA ]</span>`;
-        } else {
-            g = `<span style="color:var(--danger); font-weight:bold;">[ LEZÁRT ]</span>`;
-        }
-        
-        let iSz = `<small>${new Date(a.datum).toLocaleString()}</small>`;
-        let sJ = '';
-        if (a.tervezett_ido) {
-            const tI = new Date(a.tervezett_ido);
-            iSz = `<small style="color:var(--warn); font-weight:bold;">Tervezett időpont: ${tI.toLocaleString()}</small>`;
-            if (tI > new Date() && a.aktiv) {
-                sJ = ` <span class="badge" style="background:rgba(251, 191, 36, 0.1); color:var(--warn); border:1px solid var(--warn);">TERVEZETT</span>`;
+                g += ` <button class="btn btn-danger" style="padding:0.4rem 1rem; font-size:0.8rem; margin-left:8px;" onclick="zarAkcio(${a.id}); event.stopPropagation();">Zárás</button>`;
             }
         }
-        return `<div class="card" style="border: 1px solid ${a.aktiv ? 'var(--border)' : 'transparent'}; background: ${a.aktiv ? 'var(--surface)' : 'rgba(0,0,0,0.2)'}; margin-bottom: 15px; padding: 1.5rem;"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;"><h3 style="margin:0; color:${a.aktiv ? 'var(--accent)' : 'var(--text-muted)'}">[ ${a.tipus} ] - Szervező: ${a.szervezo_nev}${sJ}</h3><div>${g}</div></div><p style="color:var(--text-muted); margin-bottom:5px;">${iSz}</p><div style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;"><strong style="color:var(--text);">Résztvevők (${a.resztvevok.length} fő):</strong><ul style="margin-top:10px; padding-left:20px; line-height:1.8;">${rH || '<li>Még senki nem csatlakozott.</li>'}</ul></div></div>`;
+
+        const detailId = `details-${a.id}`;
+        let initial = a.szervezo_nev ? a.szervezo_nev.charAt(0).toUpperCase() : '?';
+
+        return `
+            <div class="akcio-compact" onclick="toggleDetails('${detailId}')">
+                <div class="akcio-avatar">${initial}</div>
+                <div style="flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:600; font-size:1rem; color:var(--text);">${a.szervezo_nev}</span>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="color:var(--text-muted); font-size:0.85rem;">${new Date(a.datum).toLocaleDateString()}</span>
+                            ${g}
+                        </div>
+                    </div>
+                    <div style="margin-top:4px;">
+                        <span style="color:var(--text-muted); font-size:0.85rem;">${a.tipus}</span>
+                        <span class="role-badge" style="background:var(--surface-hover); color:var(--text-muted);">${a.resztvevok.length} résztvevő</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="${detailId}" class="card akcio-details" style="display:none; margin-top:-8px; margin-bottom:15px; border-top:none; border-top-left-radius:0; border-top-right-radius:0; background:var(--surface-light); padding:1.5rem;">
+                <p style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">Esemény ideje: ${new Date(a.datum).toLocaleString()}</p>
+                <h4 style="margin:15px 0 10px 0; font-size:0.9rem; font-weight:500; color:var(--text);">Résztvevők</h4>
+                <div style="display:grid; grid-template-columns: 1fr; gap:4px;">
+                    ${rH || '<p style="color:var(--text-muted); font-size:0.85rem; margin:0;">Még nincsenek résztvevők.</p>'}
+                </div>
+                ${addSection}
+            </div>`;
     }
+
+    async function hozzaadAkciohoz(akcioId) {
+        const selectEl = document.getElementById(`add-user-${akcioId}`);
+        if (!selectEl) return;
+        const tagId = selectEl.value;
+        if (!tagId) return alert("Válassz ki egy tagot a listából!");
+        
+        await apiFetch(`/api/akcio/${akcioId}/force_join`, { 
+            method: 'PUT', 
+            body: JSON.stringify({ tag_id: parseInt(tagId) }) 
+        });
+        fetchAkciok();
+        fetchProfil();
+    }
+
+    async function eltavolitAkciobol(akcioId, tagId) {
+        if (confirm("Biztosan kirakod ezt a tagot az eseményből? (A statisztikájából is levonódik!)")) {
+            await apiFetch(`/api/akcio/${akcioId}/force_leave`, { 
+                method: 'PUT', 
+                body: JSON.stringify({ tag_id: parseInt(tagId) }) 
+            });
+            fetchAkciok();
+            fetchProfil();
+        }
+    }
+
+function toggleDetails(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        const isHidden = el.style.display === 'none';
+        el.style.display = isHidden ? 'block' : 'none';
+    }
+}
 
     function szuresAkciok(v) {
         const vl = v.toLowerCase();
@@ -1223,11 +1324,6 @@ async function fetchProfil() {
             return;
         }
         renderAkciok(ALL_AKCIOK.filter(x => (x.szervezo_nev || '').toLowerCase().includes(vl) || x.resztvevok.some(y => (y.nev || '').toLowerCase().includes(vl) || (y.ic_nev || '').toLowerCase().includes(vl))), true);
-    }
-
-    function toggleArchivum() {
-        const a = document.getElementById('archivum-container');
-        if (a) a.style.display = a.style.display === 'none' ? 'block' : 'none';
     }
 
     async function letrehozAkcio() {
@@ -1261,13 +1357,32 @@ async function fetchProfil() {
             fetchAkciok();
         }
     }
-
-    async function szezonzaras() {
-        if (confirm("Ezzel minden statisztika nullázódik. Folytatod?")) {
-            await apiFetch('/api/akcio_archiv', { method: 'POST' });
-            alert("Szezon lezárva!");
+    async function hozzaadAkciohoz(akcioId) {
+        const selectEl = document.getElementById(`add-user-${akcioId}`);
+        if (!selectEl) return;
+        const tagId = selectEl.value;
+        if (!tagId) return alert("Válassz ki egy tagot a listából!");
+        
+        const r = await apiFetch(`/api/akcio/${akcioId}/force_join`, { 
+            method: 'PUT', 
+            body: JSON.stringify({ tag_id: parseInt(tagId) }) 
+        });
+        if (r) {
             fetchAkciok();
             fetchProfil();
+        }
+    }
+
+    async function eltavolitAkciobol(akcioId, tagId) {
+        if (confirm("Biztosan kirakod ezt a tagot az eseményből?")) {
+            const r = await apiFetch(`/api/akcio/${akcioId}/force_leave`, { 
+                method: 'PUT', 
+                body: JSON.stringify({ tag_id: parseInt(tagId) }) 
+            });
+            if (r) {
+                fetchAkciok();
+                fetchProfil();
+            }
         }
     }
 
@@ -1298,11 +1413,23 @@ async function fetchProfil() {
         tb.innerHTML = '';
         l.forEach(x => {
             if (x.rang === 'DEV') return;
-            let m = `<button class="btn" style="padding:0.3rem 0.8rem; font-size:0.7rem; border-color:var(--accent); color:var(--accent);" onclick="megtekintProfil(${x.id})">PROFIL</button>`;
+            let m = `<button class="btn" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="megtekintProfil(${x.id})">Profil</button>`;
             if (myPermissions.nev_valtoztat) {
-                m += ` <button class="btn" style="padding:0.3rem 0.8rem; font-size:0.7rem; border-color:var(--success); color:var(--success);" onclick="nyitTagSzerkesztes(${x.id},'${x.nev}','${x.ic_nev}','${x.discord}','${x.rang}')">Szerk</button> <button class="btn btn-danger" style="padding:0.3rem 0.6rem; font-size:0.8rem; border:none;" onclick="tagTorles(${x.id})">🗑️</button>`;
+                m += ` <button class="btn" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="nyitTagSzerkesztes(${x.id},'${x.nev}','${x.ic_nev}','${x.discord}','${x.rang}')">Szerkesztés</button> <button class="btn btn-danger" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="tagTorles(${x.id})">Törlés</button>`;
             }
-            tb.innerHTML += `<tr><td><strong style="color:var(--accent)">${x.ic_nev || '-'}</strong><br><small style="color:var(--text-muted);">${x.nev}</small></td><td style="color:var(--text-muted);">${x.rang}</td><td>${m}</td></tr>`;
+            tb.innerHTML += `<tr>
+                <td>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <div style="width:36px; height:36px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; font-weight:600; color:var(--text-muted); font-size:0.9rem;">${(x.ic_nev || 'U').charAt(0).toUpperCase()}</div>
+                        <div>
+                            <div style="font-weight:600; font-size:0.95rem;">${x.ic_nev || '-'}</div>
+                            <div style="color:var(--text-muted); font-size:0.8rem;">@${x.nev}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="role-badge">${x.rang}</span></td>
+                <td>${m}</td>
+            </tr>`;
         });
     }
 
@@ -1352,8 +1479,8 @@ async function fetchProfil() {
         tb.innerHTML = '';
         j.forEach(x => {
             let rC = x.rang === 'DEV' 
-                ? `<td>DEV (${x.prioritas})</td><td colspan="11" style="text-align:center; color:var(--text-muted); font-weight:600; letter-spacing:2px;">[ ÉRÍNTHETETLEN ]</td><td>-</td>` 
-                : `<td style="white-space: nowrap;"><input type="text" class="edit-rang-nev" data-old-rang="${x.rang}" value="${x.rang}" style="width:90px; margin:0; padding:0.4rem; background:rgba(0,0,0,0.3); border:none; color:var(--text); border-radius:4px; text-align:center;"> (<input type="number" class="edit-rang-prio" value="${x.prioritas}" style="width:40px; margin:0; padding:0.4rem; background:rgba(0,0,0,0.3); border:none; color:var(--text); border-radius:4px; text-align:center;">)</td><td><input type="number" class="edit-rang-leadando" value="${x.leadando || 0}" style="width:80px; margin:0; padding:0.4rem; background:rgba(0,0,0,0.3); border:none; color:var(--warn); border-radius:4px; text-align:center; font-weight:bold;"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.hir_iras ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'hir_iras', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.hir_kezel ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'hir_kezel', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.kassza ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'kassza', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.tag_kezel ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'tag_kezel', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.jog_admin ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_admin', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.nev_valtoztat ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'nev_valtoztat', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.jog_akcio ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_akcio', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.jog_akcio_tervezes ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_akcio_tervezes', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.jog_lezart_akcio ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_lezart_akcio', this.checked)"></td><td><input type="checkbox" style="width:auto; margin:0;" ${x.jog_warn ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_warn', this.checked)"></td><td><button onclick="torolRang('${x.rang}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:1.2rem;">🗑️</button></td>`;
+                ? `<td><span class="role-badge">DEV (${x.prioritas})</span></td><td colspan="11" style="text-align:center; color:var(--text-muted); font-weight:600;">Teljes Hozzáférés</td><td>-</td>` 
+                : `<td style="white-space: nowrap;"><input type="text" class="edit-rang-nev" data-old-rang="${x.rang}" value="${x.rang}" style="width:110px; margin:0; padding:0.5rem; background:var(--surface-hover); border:1px solid transparent; color:var(--text); border-radius:var(--radius-sm); font-size:0.8rem;"> <input type="number" class="edit-rang-prio" value="${x.prioritas}" style="width:50px; margin:0; padding:0.5rem; background:var(--surface-hover); border:1px solid transparent; color:var(--text); border-radius:var(--radius-sm); font-size:0.8rem;"></td><td><input type="number" class="edit-rang-leadando" value="${x.leadando || 0}" style="width:80px; margin:0; padding:0.5rem; background:var(--surface-hover); border:1px solid transparent; color:var(--text); border-radius:var(--radius-sm); font-size:0.8rem;"></td><td><input type="checkbox" ${x.hir_iras ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'hir_iras', this.checked)"></td><td><input type="checkbox" ${x.hir_kezel ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'hir_kezel', this.checked)"></td><td><input type="checkbox" ${x.kassza ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'kassza', this.checked)"></td><td><input type="checkbox" ${x.tag_kezel ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'tag_kezel', this.checked)"></td><td><input type="checkbox" ${x.jog_admin ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_admin', this.checked)"></td><td><input type="checkbox" ${x.nev_valtoztat ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'nev_valtoztat', this.checked)"></td><td><input type="checkbox" ${x.jog_akcio ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_akcio', this.checked)"></td><td><input type="checkbox" ${x.jog_akcio_tervezes ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_akcio_tervezes', this.checked)"></td><td><input type="checkbox" ${x.jog_lezart_akcio ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_lezart_akcio', this.checked)"></td><td><input type="checkbox" ${x.jog_warn ? 'checked' : ''} onchange="mentesRang('${x.rang}', 'jog_warn', this.checked)"></td><td><button class="btn btn-danger" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="torolRang('${x.rang}')">Törlés</button></td>`;
             tb.innerHTML += `<tr>${rC}</tr>`;
         });
     }
@@ -1406,19 +1533,18 @@ async function fetchProfil() {
         if (!o || isNaN(o)) return alert("Érvénytelen!");
         aktualisTranzakcio = { tipus: t, osszeg: parseInt(o) };
         document.getElementById('modal-osszeg-display').innerText = (t === 'be' ? 'Befizetés: ' : 'Kivétel: ') + parseInt(o).toLocaleString() + " $";
-        document.getElementById('modal-osszeg-display').style.color = t === 'be' ? 'var(--success)' : 'var(--danger)';
         document.getElementById('kassza-modal').style.display = 'flex';
     }
 
     function valtsIgazolasTipus(v) {
         document.getElementById('igazolas-input-container').innerHTML = v === 'link' 
             ? '<input type="text" id="kassza-bizonyitek" placeholder="https://...">' 
-            : '<textarea id="kassza-bizonyitek" placeholder="Megjegyzés..."></textarea>';
+            : '<textarea id="kassza-bizonyitek" placeholder="Megjegyzés..." rows="3"></textarea>';
     }
 
     async function veglegesitTranzakcio() {
         const b = document.getElementById('kassza-bizonyitek').value;
-        if (!b) return alert("Add meg!");
+        if (!b) return alert("Add meg az igazolást!");
         await apiFetch('/api/kassza', { method: 'POST', body: JSON.stringify({ tipus: aktualisTranzakcio.tipus, osszeg: aktualisTranzakcio.osszeg, bizonyitek: b, operator: myUserName }) });
         location.reload();
     }
@@ -1435,7 +1561,8 @@ async function fetchProfil() {
         if (!tb) return;
         tb.innerHTML = '';
         d.logs.forEach(x => {
-            tb.innerHTML += `<tr><td style="color:var(--text-muted);">${new Date(x.datum).toLocaleDateString()}</td><td>${x.operator}</td><td style="color:${x.tipus === 'be' ? 'var(--success)' : 'var(--danger)'}; font-weight:bold;">${x.tipus.toUpperCase()}</td><td>${x.osszeg.toLocaleString()} $</td><td>${x.bizonyitek?.startsWith('http') ? `<a href="${x.bizonyitek}" target="_blank" style="color:var(--accent)">LINK</a>` : (x.bizonyitek || '-')}</td></tr>`;
+            let typeBadge = x.tipus === 'be' ? '<span class="role-badge" style="background:rgba(16,185,129,0.1); color:var(--success);">Befizetés</span>' : '<span class="role-badge" style="background:rgba(239,68,68,0.1); color:var(--danger);">Kivétel</span>';
+            tb.innerHTML += `<tr><td style="color:var(--text-muted); font-size:0.9rem;">${new Date(x.datum).toLocaleDateString()}</td><td><strong>${x.operator}</strong></td><td>${typeBadge}</td><td style="font-weight:600;">${x.osszeg.toLocaleString()} $</td><td>${x.bizonyitek?.startsWith('http') ? `<a href="${x.bizonyitek}" target="_blank" style="color:var(--accent); text-decoration:none;">Megtekintés ↗</a>` : (x.bizonyitek || '-')}</td></tr>`;
         });
     }
 
@@ -1451,12 +1578,26 @@ async function fetchProfil() {
         const h = await r.json();
         l.innerHTML = '';
         if (h.length === 0) {
-            l.innerHTML = '<div class="card" style="text-align:center; color:var(--text-muted);">Üres.</div>';
+            l.innerHTML = '<div class="card" style="text-align:center; color:var(--text-muted);">Nincsenek közlemények.</div>';
         } else {
             h.forEach(x => {
-                let d = myPermissions.hir_kezel ? `<button class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.8rem; border:none;" onclick="torolHir(${x.id})">🗑️</button>` : '';
+                let d = myPermissions.hir_kezel ? `<button class="btn btn-danger" style="padding:0.3rem 0.8rem; font-size:0.8rem;" onclick="torolHir(${x.id})">Törlés</button>` : '';
                 let fS = x.tartalom ? x.tartalom.replace(/\n/g, '<br>') : '';
-                l.innerHTML += `<div class="card" style="padding:1.5rem;"><div style="display:flex; justify-content:space-between"><strong style="color:var(--accent); font-size:1.2rem;">${x.cim}</strong>${d}</div><small style="color:var(--text-muted); display:block; margin-top:5px;">${x.iro} • ${new Date(x.datum).toLocaleString()}</small><p style="margin-top:15px; color:var(--text); line-height:1.6;">${fS}</p></div>`;
+                l.innerHTML += `<div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <h3 style="margin:0 0 5px 0; font-size:1.2rem;">${x.cim}</h3>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:24px; height:24px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--text-muted);">U</div>
+                                <span style="font-size:0.85rem; color:var(--text-muted);">${x.iro}</span>
+                                <span style="font-size:0.85rem; color:var(--border);">•</span>
+                                <span style="font-size:0.85rem; color:var(--text-muted);">${new Date(x.datum).toLocaleString()}</span>
+                            </div>
+                        </div>
+                        ${d}
+                    </div>
+                    <div style="margin-top:20px; line-height:1.6; color:var(--text); font-size:0.95rem;">${fS}</div>
+                </div>`;
             });
         }
     }
@@ -1500,18 +1641,66 @@ async function fetchProfil() {
         location.reload();
     }
 
-    setInterval(() => {
-        if (localStorage.getItem('klani_token')) {
-            checkA();
-            fetchAkciok();
-            fetchBalance();
-            fetchTagok();
-            fetchLeadando();
-            if (myPermissions && myPermissions.jog_warn) fetchWarnList();
+    const MIN_AKCIO_SZAM = 6;      
+    const SZERVEZO_CEL = 6;        
+
+    function frissitAktivitasMeter(p) {
+        const resztvett = p.akcio_resztvett || 0;
+        const circle = document.getElementById('daras-circle');
+        const text = document.getElementById('daras-text');
+        const subtitle = document.getElementById('daras-subtitle');
+        
+        if (circle) {
+            let szazalek = Math.min((resztvett / MIN_AKCIO_SZAM) * 100, 100);
+            let szin = resztvett >= MIN_AKCIO_SZAM ? 'var(--success)' : 'var(--accent)';
+
+            circle.style.background = `conic-gradient(${szin} ${szazalek}%, var(--surface-light) ${szazalek}%)`;
+            subtitle.innerHTML = resztvett >= MIN_AKCIO_SZAM ? '<span style="color:var(--success); font-weight:500;">Cél teljesítve</span>' : `Még <span style="color:var(--text);">${MIN_AKCIO_SZAM - resztvett}</span> kell a célhoz`;
+            text.innerHTML = `<span>${resztvett}</span> / ${MIN_AKCIO_SZAM}`;
         }
-    }, 300000); 
+
+        const kontener = document.getElementById('szervezo-kontener');
+        if (!kontener) return;
+
+        if (myPermissions.jog_akcio || myUserRang === 'DEV' || myUserRang === 'Keshilli i Vjeter') {
+            const szervezett = p.akcio_szervezett || 0;
+            let szazalekSzerv = Math.min((szervezett / SZERVEZO_CEL) * 100, 100);
+            let szinSzerv = szervezett >= SZERVEZO_CEL ? 'var(--success)' : 'var(--warn)';
+
+            kontener.innerHTML = `
+                <div class="aktivitas-card" style="margin-top: 1.5rem;">
+                    <div class="aktivitas-info">
+                        <h3>Akció szervezés</h3>
+                        <p>Szervezz akciókat!</p>
+                    </div>
+                    <div class="progress-circle" style="background: conic-gradient(${szinSzerv} ${szazalekSzerv}%, var(--surface-light) ${szazalekSzerv}%)">
+                        <div class="progress-text"><span>${szervezett}</span> / ${SZERVEZO_CEL}</div>
+                    </div>
+                    <div style="margin-top:20px; color:var(--text-muted); font-size:0.9rem;">
+                        ${szervezett >= SZERVEZO_CEL ? '<span style="color:var(--success); font-weight:500;">Cél teljesítve</span>' : `Még <span style="color:var(--text);">${SZERVEZO_CEL - szervezett}</span> kell a célhoz`}
+                    </div>
+                </div>`;
+        } else {
+            kontener.innerHTML = '';
+        }
+    }
+
+    function udvozloUzenet(icNev) {
+        let toast = document.getElementById('welcome-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'welcome-toast';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `
+            <h2 style="margin:0; font-size:1.8rem; color:var(--accent);">ÜDVÖZÖLLEK, ${icNev ? icNev.toUpperCase() : 'USER'}!</h2>
+            <p style="margin:0; color:var(--text-muted);">Sikeresen bejelentkeztél.</p>
+        `;
+        toast.classList.remove('show');
+        setTimeout(() => { toast.classList.add('show'); }, 200);
+        setTimeout(() => { toast.classList.remove('show'); }, 4000);
+    }
 
 </script>
 </body>
-
 </html>

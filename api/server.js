@@ -6,7 +6,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 const JWT_SECRET = process.env.JWT_SECRET || 'titkos-kulcs-123';
 const SALT_ROUNDS = 10;
 
-// Memóriazár a dupla kattintások ellen (Manuális zárásnál)
+//Memóriazár
 let isZarasFolyamatban = false;
 
 export default async function handler(req, res) {
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
                 jog_akcio: isDev || jog?.jog_akcio || false, jog_lezart_akcio: isDev || jog?.jog_lezart_akcio || false,
                 jog_warn: isDev || jog?.jog_warn || false, jog_akcio_tervezes: isDev || jog?.jog_akcio_tervezes || false
             }, JWT_SECRET, { expiresIn: '24h' });
-            return res.json({ success: true, token });
+            return res.json({ success: true, token, ic_nev: tag.ic_nev });
         }
 
         //BIZTONSÁGI ELLENŐRZŐ
@@ -177,7 +177,35 @@ export default async function handler(req, res) {
                 await supabase.from('tagok').update({ akcio_resztvett: Math.max(0, (t.akcio_resztvett || 0) - 1) }).eq('id', user.id); 
                 return res.json({ success: true });
             }
-            if (method === 'PUT' && action === 'close') { await supabase.from('akciok').update({ aktiv: false }).eq('id', id); return res.json({ success: true }); }
+            if (method === 'PUT' && action === 'close') { 
+                await supabase.from('akciok').update({ aktiv: false }).eq('id', id); 
+                return res.json({ success: true }); 
+            }
+            
+            // --- KÉZI HOZZÁADÁS ÉS KIRÚGÁS (STATISZTIKA +-1) ---
+            if (method === 'PUT' && action === 'force_join') {
+                const targetId = req.body.tag_id;
+                const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
+                let r = a.resztvevok || [];
+                const { data: targetTag } = await supabase.from('tagok').select('id, nev, ic_nev').eq('id', targetId).single();
+                if (targetTag && !r.some(x => x.id === targetId)) {
+                    r.push({ id: targetTag.id, nev: targetTag.nev, ic_nev: targetTag.ic_nev, ido: new Date().toISOString() });
+                    await supabase.from('akciok').update({ resztvevok: r }).eq('id', id);
+                    const { data: t } = await supabase.from('tagok').select('akcio_resztvett').eq('id', targetId).single();
+                    await supabase.from('tagok').update({ akcio_resztvett: (t.akcio_resztvett || 0) + 1 }).eq('id', targetId);
+                }
+                return res.json({ success: true });
+            }
+            if (method === 'PUT' && action === 'force_leave') {
+                const targetId = req.body.tag_id;
+                const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
+                let r = a.resztvevok || [];
+                const ujResztvevok = r.filter(x => x.id !== targetId);
+                await supabase.from('akciok').update({ resztvevok: ujResztvevok }).eq('id', id);
+                const { data: t } = await supabase.from('tagok').select('akcio_resztvett').eq('id', targetId).single();
+                await supabase.from('tagok').update({ akcio_resztvett: Math.max(0, (t.akcio_resztvett || 0) - 1) }).eq('id', targetId);
+                return res.json({ success: true });
+            }
         }
         if (path === '/api/akcio_archiv' && method === 'POST') { 
             await supabase.from('akciok').update({ archivalva: true, aktiv: false }).eq('archivalva', false); 
@@ -236,6 +264,56 @@ export default async function handler(req, res) {
         if (path === '/api/hirek') { if (method === 'GET') { const { data } = await supabase.from('hirek').select('*').order('datum', { ascending: false }); return res.json(data); } else { await supabase.from('hirek').insert([{ ...req.body, iro: user.nev }]); return res.json({ success: true }); } }
         if (path.startsWith('/api/hirek/') && method === 'DELETE') { await supabase.from('hirek').delete().eq('id', path.split('/').pop()); return res.json({ success: true }); }
         if (path === '/api/jelszocsere' && method === 'POST') { const hp = await bcrypt.hash(req.body.ujJelszo, SALT_ROUNDS); await supabase.from('tagok').update({ jelszo: hp, elso_belepes: false }).eq('id', req.body.userId); return res.json({ success: true }); }
+
+        function udvozloUzenet(icNev) {
+        let toast = document.getElementById('welcome-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'welcome-toast';
+            document.body.appendChild(toast);
+        }
+        
+        toast.innerHTML = `Üdvözöllek, <span style="color:var(--accent)">${icNev || 'Ismeretlen'}</span>! 👋`;
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 300);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    }
+
+            //KÉZI HOZZÁADÁS
+        if (method === 'PUT' && action === 'force_join') {
+            const targetId = req.body.tag_id;
+            const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
+            let r = a.resztvevok || [];
+            
+            const { data: targetTag } = await supabase.from('tagok').select('id, nev, ic_nev').eq('id', targetId).single();
+            if (targetTag && !r.some(x => x.id === targetId)) {
+                r.push({ id: targetTag.id, nev: targetTag.nev, ic_nev: targetTag.ic_nev, ido: new Date().toISOString() });
+                await supabase.from('akciok').update({ resztvevok: r }).eq('id', id);
+                
+                const { data: t } = await supabase.from('tagok').select('akcio_resztvett').eq('id', targetId).single();
+                await supabase.from('tagok').update({ akcio_resztvett: (t.akcio_resztvett || 0) + 1 }).eq('id', targetId);
+            }
+            return res.json({ success: true });
+        }
+
+        //KÉZI ELTÁVOLÍTÁS
+        if (method === 'PUT' && action === 'force_leave') {
+            const targetId = req.body.tag_id;
+            const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
+            let r = a.resztvevok || [];
+            const ujResztvevok = r.filter(x => x.id !== targetId);
+            
+            await supabase.from('akciok').update({ resztvevok: ujResztvevok }).eq('id', id);
+            
+            const { data: t } = await supabase.from('tagok').select('akcio_resztvett').eq('id', targetId).single();
+            await supabase.from('tagok').update({ akcio_resztvett: Math.max(0, (t.akcio_resztvett || 0) - 1) }).eq('id', targetId);
+            return res.json({ success: true });
+        }
 
         res.status(404).send('Not Found');
     } catch (err) { res.status(500).json({ error: err.message }); }
