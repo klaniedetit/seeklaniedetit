@@ -32,7 +32,6 @@
             min-height: 100vh;
             overflow-x: hidden;
             
-            /* Sötét, elegáns gradient háttér */
             background: linear-gradient(45deg, #000000, #0f172a, #000000, #050a15);
             background-size: 400% 400%;
             animation: gradientDrift 20s ease infinite alternate;
@@ -41,7 +40,6 @@
             color-scheme: dark;
         }
 
-        /* A háttér lassú mozgásának animációja */
         @keyframes gradientDrift {
             0% { background-position: 0% 50%; }
             100% { background-position: 100% 50%; }
@@ -93,8 +91,8 @@
 
         nav {
             display: flex;
-            justify-content: center; /* Ez rendezi középre a gombokat */
-            gap: 12px; /* Kicsit nagyobb szünet a gombok között */
+            justify-content: center;
+            gap: 12px;
             padding: 1.5rem 1rem;
             margin-bottom: 1rem !important;
             flex-wrap: wrap;
@@ -103,8 +101,8 @@
         .nav-btn {
             background: transparent;
             color: var(--text-muted);
-            border: 1px solid var(--border); /* Ez adja meg a szegélyt */
-            border-radius: 99px; /* Még kerekebb, "pill" forma */
+            border: 1px solid var(--border);
+            border-radius: 99px;
             padding: 0.6rem 1.5rem;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
@@ -117,14 +115,14 @@
         .nav-btn:hover {
             color: var(--text);
             background: var(--surface-light);
-            border-color: #333; /* Hover állapotban kicsit világosabb szegély */
+            border-color: #333;
             transform: translateY(-2px);
         }
 
         .nav-btn.active-nav {
             color: #fff;
             background: var(--accent);
-            border-color: var(--accent); /* Az aktív gomb szegélye a saját színét kapja */
+            border-color: var(--accent);
         }
 
         .btn {
@@ -301,13 +299,11 @@
             50% { filter: drop-shadow(0 0 30px rgba(52, 211, 153, 0.9)); } 
             100% { filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6)); } 
         }
-        
-        /* A fő karika statikus hátterének eltüntetése */
+
         .progress-circle.daras-anim {
             background: transparent !important; 
         }
-        
-        /* Ez a réteg fog pörögni a háttérben */
+
         .progress-circle.daras-anim::before {
             content: "";
             position: absolute;
@@ -406,7 +402,6 @@
             border-top: 1px solid var(--border);
         }
 
-        /* Overrides for inline styles */
         .btn[style*="border-color:var(--accent)"] {
             background: var(--accent) !important;
             color: white !important;
@@ -417,8 +412,7 @@
             color: white !important;
             border: none !important;
         }
-        
-        /* Tooltip */
+
         .tooltip { position: relative; display: inline-block; cursor: help; margin-left: 8px; }
         .tooltip .tooltiptext {
             visibility: hidden; width: 220px; background-color: var(--surface-light);
@@ -428,8 +422,7 @@
             font-size: 0.85rem; font-weight: normal;
         }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
-        
-        /* Badges for roles like in image */
+
         .role-badge {
             background: rgba(59, 130, 246, 0.15);
             color: var(--accent);
@@ -440,8 +433,7 @@
             margin-left: 8px;
             vertical-align: middle;
         }
-        
-        /* Clean up headings */
+
         h1, h2, h3 { font-weight: 600; letter-spacing: -0.02em; }
     
         #welcome-toast {
@@ -549,7 +541,7 @@
                 </div>
                 <div class="progress-circle" id="daras-circle">
                     <div class="progress-text" id="daras-text">
-                        <span>0</span> / 6
+                        <span>0</span> / 8
                     </div>
                 </div>
                 <div id="daras-subtitle" style="margin-top:20px; color:var(--text-muted); font-size:0.9rem;">Betöltés...</div>
@@ -1667,8 +1659,8 @@ function toggleDetails(id) {
         location.reload();
     }
 
-    const MIN_AKCIO_SZAM = 6;      
-    const SZERVEZO_CEL = 6;
+    const MIN_AKCIO_SZAM = 8;      
+    const SZERVEZO_CEL = 8;
     const DARAS_AKCIO_SZAM = 16;
 
     function frissitAktivitasMeter(p) {
@@ -1685,7 +1677,7 @@ function toggleDetails(id) {
             
             if (resztvett >= DARAS_AKCIO_SZAM) {
             circle.style.background = '';
-            circle.style.transition = 'none'; // <--- EZ KIKAPCSOLJA A BLOKKOLÁST
+            circle.style.transition = 'none';
             circle.classList.add('daras-anim');
             subtitle.innerHTML = 'Lehet pihenni is kellene XD';
             subtitle.style.color = '#34d399';
