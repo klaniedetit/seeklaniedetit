@@ -1274,6 +1274,15 @@ async function fetchProfil() {
         const detailId = `details-${a.id}`;
         let initial = a.szervezo_nev ? a.szervezo_nev.charAt(0).toUpperCase() : '?';
 
+        let idoSzovegKicsi = new Date(a.datum).toLocaleDateString();
+        let idoSzovegNagy = `Esemény ideje: ${new Date(a.datum).toLocaleString()}`;
+        
+        if (a.tervezett_ido) {
+            let tDate = new Date(a.tervezett_ido);
+            idoSzovegKicsi = `<span style="color:var(--warn); font-weight:bold;"> ${tDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`;
+            idoSzovegNagy = `<strong style="color:var(--warn); font-size:1rem;">Tervezett időpont: ${tDate.toLocaleString([], {month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'})}</strong> <br><small style="color:var(--text-muted); font-weight:normal;">(Létrehozva: ${new Date(a.datum).toLocaleString()})</small>`;
+        }
+
         return `
             <div class="akcio-compact" onclick="toggleDetails('${detailId}')">
                 <div class="akcio-avatar">${initial}</div>
@@ -1281,7 +1290,7 @@ async function fetchProfil() {
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-weight:600; font-size:1rem; color:var(--text);">${a.szervezo_nev}</span>
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <span style="color:var(--text-muted); font-size:0.85rem;">${new Date(a.datum).toLocaleDateString()}</span>
+                            <span style="color:var(--text-muted); font-size:0.85rem;">${idoSzovegKicsi}</span>
                             ${g}
                         </div>
                     </div>
@@ -1293,7 +1302,7 @@ async function fetchProfil() {
             </div>
             
             <div id="${detailId}" class="card akcio-details" style="display:none; margin-top:-8px; margin-bottom:15px; border-top:none; border-top-left-radius:0; border-top-right-radius:0; background:var(--surface-light); padding:1.5rem;">
-                <p style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">Esemény ideje: ${new Date(a.datum).toLocaleString()}</p>
+                <p style="margin-top:0; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">${idoSzovegNagy}</p>
                 <h4 style="margin:15px 0 10px 0; font-size:0.9rem; font-weight:500; color:var(--text);">Résztvevők</h4>
                 <div style="display:grid; grid-template-columns: 1fr; gap:4px;">
                     ${rH || '<p style="color:var(--text-muted); font-size:0.85rem; margin:0;">Még nincsenek résztvevők.</p>'}
