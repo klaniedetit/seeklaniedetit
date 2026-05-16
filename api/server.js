@@ -38,7 +38,8 @@ export default async function handler(req, res) {
                 nev_valtoztat: isDev || jog?.nev_valtoztat || false, tag_kezel: isDev || jog?.tag_kezel || false, 
                 kassza: isDev || jog?.kassza || false, hir_iras: isDev || jog?.hir_iras || false,
                 jog_akcio: isDev || jog?.jog_akcio || false, jog_lezart_akcio: isDev || jog?.jog_lezart_akcio || false,
-                jog_warn: isDev || jog?.jog_warn || false, jog_akcio_tervezes: isDev || jog?.jog_akcio_tervezes || false
+                jog_warn: isDev || jog?.jog_warn || false, jog_akcio_tervezes: isDev || jog?.jog_akcio_tervezes || false,
+                jog_kerveny: isDev || jog?.jog_kerveny || false
             }, JWT_SECRET, { expiresIn: '24h' });
             return res.json({ success: true, token, ic_nev: tag.ic_nev });
         }
@@ -58,7 +59,8 @@ export default async function handler(req, res) {
                     nev_valtoztat: isDev || jog?.nev_valtoztat || false, tag_kezel: isDev || jog?.tag_kezel || false, 
                     kassza: isDev || jog?.kassza || false, hir_iras: isDev || jog?.hir_iras || false,
                     jog_akcio: isDev || jog?.jog_akcio || false, jog_lezart_akcio: isDev || jog?.jog_lezart_akcio || false,
-                    jog_warn: isDev || jog?.jog_warn || false, jog_akcio_tervezes: isDev || jog?.jog_akcio_tervezes || false
+                    jog_warn: isDev || jog?.jog_warn || false, jog_akcio_tervezes: isDev || jog?.jog_akcio_tervezes || false,
+                    jog_kerveny: isDev || jog?.jog_kerveny || false
                 }, JWT_SECRET, { expiresIn: '24h' });
                 return res.json({ valid: true, newToken });
             }
@@ -134,6 +136,94 @@ export default async function handler(req, res) {
             if (method === 'DELETE') { await supabase.from('figyelmeztetesek').delete().eq('id', id); return res.json({ success: true }); }
         }
 
+        //KÉRVÉNYEK
+        if (path === '/api/kervenyek') {
+            if (method === 'GET') {
+                const queryParams = new URLSearchParams(url.split('?')[1] || '');
+                const fetchAll = queryParams.get('all') === 'true';
+                
+                let q = supabase.from('kervenyek').select('*').order('datum', { ascending: false });
+                if (!user.jog_kerveny && user.rang !== 'DEV') {
+                    q = q.eq('bekuldo_id', user.id);
+                }
+                
+                if (!fetchAll) {
+                    q = q.in('statusz', ['Függőben', 'Folyamatban']);
+                }
+                
+                const { data } = await q;
+                return res.json(data || []);
+            }
+            if (method === 'POST') {
+                const { data: activeList } = await supabase.from('kervenyek').select('id').eq('bekuldo_id', user.id).eq('statusz', 'Függőben');
+                if (activeList && activeList.length > 0) {
+                    return res.status(400).json({ error: 'Már van egy elbírálásra váró kérvényed! Várj türelemmel.' });
+                }
+                await supabase.from('kervenyek').insert([{ 
+                    bekuldo_id: user.id, bekuldo_nev: user.ic_nev || user.nev, 
+                    cim: req.body.cim, tartalom: req.body.tartalom, statusz: 'Függőben', kommentek: []
+                }]);
+                return res.json({ success: true });
+            }
+        }
+        if (path.startsWith('/api/kervenyek/') && path.split('/').length > 3) {
+            const parts = path.split('/');
+            const id = parts[3];
+            const action = parts[4];
+            
+            // A kommentek fogadása
+            if (method === 'POST' && action === 'komment') {
+                const { szoveg } = req.body;
+                if (!szoveg) return res.status(400).json({ error: 'Üres üzenet!' });
+                
+                const { data: kerveny } = await supabase.from('kervenyek').select('kommentek').eq('id', id).single();
+                let komms = kerveny.kommentek || [];
+                komms.push({ iro: user.ic_nev || user.nev, szoveg: szoveg, ido: new Date().toISOString(), iro_id: user.id });
+                
+                await supabase.from('kervenyek').update({ kommentek: komms }).eq('id', id);
+                return res.json({ success: true });
+            }
+
+            if (method === 'PUT' && !action) {
+                if (!user.jog_kerveny && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogosultságod erre!' });
+                await supabase.from('kervenyek').update({ statusz: req.body.statusz }).eq('id', id);
+                return res.json({ success: true });
+            }
+            if (method === 'DELETE' && !action) {
+                if (!user.jog_kerveny && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogosultságod erre!' });
+                await supabase.from('kervenyek').delete().eq('id', id);
+                return res.json({ success: true });
+            }
+        }
+        if (path.startsWith('/api/kervenyek/') && path.split('/').length > 3) {
+            const parts = path.split('/');
+            const id = parts[3];
+            const action = parts[4]; 
+            
+            if (method === 'POST' && action === 'komment') {
+                const { szoveg } = req.body;
+                if (!szoveg) return res.status(400).json({ error: 'Üres üzenet!' });
+                
+                const { data: kerveny } = await supabase.from('kervenyek').select('kommentek').eq('id', id).single();
+                let komms = kerveny.kommentek || [];
+                komms.push({ iro: user.ic_nev || user.nev, szoveg: szoveg, ido: new Date().toISOString(), iro_id: user.id });
+                
+                await supabase.from('kervenyek').update({ kommentek: komms }).eq('id', id);
+                return res.json({ success: true });
+            }
+
+            if (method === 'PUT' && !action) {
+                if (!user.jog_kerveny && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogosultságod erre!' });
+                await supabase.from('kervenyek').update({ statusz: req.body.statusz }).eq('id', id);
+                return res.json({ success: true });
+            }
+            if (method === 'DELETE' && !action) {
+                if (!user.jog_kerveny && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogosultságod erre!' });
+                await supabase.from('kervenyek').delete().eq('id', id);
+                return res.json({ success: true });
+            }
+        }
+
         //AKCIÓK
         if (path === '/api/akcio') {
             if (method === 'GET') { const { data } = await supabase.from('akciok').select('*').order('datum', { ascending: false }); return res.json(data || []); }
@@ -182,7 +272,7 @@ export default async function handler(req, res) {
                 return res.json({ success: true }); 
             }
             
-            // --- KÉZI HOZZÁADÁS ÉS KIRÚGÁS (STATISZTIKA +-1) ---
+            // KÉZI HOZZÁADÁS ÉS KIRÚGÁS (STATISZTIKA +-1)
             if (method === 'PUT' && action === 'force_join') {
                 const targetId = req.body.tag_id;
                 const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
@@ -222,7 +312,19 @@ export default async function handler(req, res) {
         }
 
         //TAGOK ÉS JOGOK
-        if (path === '/api/tagok' && method === 'GET') { const { data: t } = await supabase.from('tagok').select('*'); const { data: r } = await supabase.from('jogosultsagok').select('*'); return res.json(t.map(x => ({ ...x, prioritas: r.find(y => y.rang === x.rang)?.prioritas || 999 })).sort((a, b) => a.prioritas - b.prioritas)); }
+        if (path === '/api/tagok' && method === 'GET') { 
+            const { data: t } = await supabase.from('tagok').select('*'); 
+            const { data: r } = await supabase.from('jogosultsagok').select('*'); 
+            const { data: w } = await supabase.from('figyelmeztetesek').select('tag_id, aktiv, lejaret');
+            
+            return res.json(t.map(x => {
+                let aktiv_warn_count = 0;
+                if (w) {
+                    aktiv_warn_count = w.filter(warn => warn.tag_id === x.id && warn.aktiv && (!warn.lejaret || new Date(warn.lejaret) > new Date())).length;
+                }
+                return { ...x, aktiv_warn_count, prioritas: r.find(y => y.rang === x.rang)?.prioritas || 999 };
+            }).sort((a, b) => a.prioritas - b.prioritas)); 
+        }
         if (path === '/api/tagok' && method === 'POST') { const hp = await bcrypt.hash('123456', SALT_ROUNDS); const { error } = await supabase.from('tagok').insert([{ ...req.body, jelszo: hp, elso_belepes: true }]); if(error) return res.status(400).json({error:'Név már létezik!'}); return res.json({ success: true }); }
         if (path.startsWith('/api/tagok/')) { const id = path.split('/').pop(); if (method === 'PUT') { await supabase.from('tagok').update(req.body).eq('id', id); return res.json({ success: true }); } if (method === 'DELETE') { await supabase.from('tagok').delete().eq('id', id); return res.json({ success: true }); } }
 
@@ -263,56 +365,10 @@ export default async function handler(req, res) {
         //HÍREK ÉS JELSZÓ
         if (path === '/api/hirek') { if (method === 'GET') { const { data } = await supabase.from('hirek').select('*').order('datum', { ascending: false }); return res.json(data); } else { await supabase.from('hirek').insert([{ ...req.body, iro: user.nev }]); return res.json({ success: true }); } }
         if (path.startsWith('/api/hirek/') && method === 'DELETE') { await supabase.from('hirek').delete().eq('id', path.split('/').pop()); return res.json({ success: true }); }
-        if (path === '/api/jelszocsere' && method === 'POST') { const hp = await bcrypt.hash(req.body.ujJelszo, SALT_ROUNDS); await supabase.from('tagok').update({ jelszo: hp, elso_belepes: false }).eq('id', req.body.userId); return res.json({ success: true }); }
-
-        function udvozloUzenet(icNev) {
-        let toast = document.getElementById('welcome-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'welcome-toast';
-            document.body.appendChild(toast);
-        }
-        
-        toast.innerHTML = `Üdvözöllek, <span style="color:var(--accent)">${icNev || 'Ismeretlen'}</span>! 👋`;
-        
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 300);
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 4000);
-    }
-
-            //KÉZI HOZZÁADÁS
-        if (method === 'PUT' && action === 'force_join') {
-            const targetId = req.body.tag_id;
-            const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
-            let r = a.resztvevok || [];
-            
-            const { data: targetTag } = await supabase.from('tagok').select('id, nev, ic_nev').eq('id', targetId).single();
-            if (targetTag && !r.some(x => x.id === targetId)) {
-                r.push({ id: targetTag.id, nev: targetTag.nev, ic_nev: targetTag.ic_nev, ido: new Date().toISOString() });
-                await supabase.from('akciok').update({ resztvevok: r }).eq('id', id);
-                
-                const { data: t } = await supabase.from('tagok').select('akcio_resztvett').eq('id', targetId).single();
-                await supabase.from('tagok').update({ akcio_resztvett: (t.akcio_resztvett || 0) + 1 }).eq('id', targetId);
-            }
-            return res.json({ success: true });
-        }
-
-        //KÉZI ELTÁVOLÍTÁS
-        if (method === 'PUT' && action === 'force_leave') {
-            const targetId = req.body.tag_id;
-            const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
-            let r = a.resztvevok || [];
-            const ujResztvevok = r.filter(x => x.id !== targetId);
-            
-            await supabase.from('akciok').update({ resztvevok: ujResztvevok }).eq('id', id);
-            
-            const { data: t } = await supabase.from('tagok').select('akcio_resztvett').eq('id', targetId).single();
-            await supabase.from('tagok').update({ akcio_resztvett: Math.max(0, (t.akcio_resztvett || 0) - 1) }).eq('id', targetId);
-            return res.json({ success: true });
+        if (path === '/api/jelszocsere' && method === 'POST') { 
+            const hp = await bcrypt.hash(req.body.ujJelszo, SALT_ROUNDS); 
+            await supabase.from('tagok').update({ jelszo: hp, elso_belepes: false }).eq('id', req.body.userId); 
+            return res.json({ success: true }); 
         }
 
         res.status(404).send('Not Found');
