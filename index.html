@@ -510,7 +510,7 @@
                     <div id="leadando-admin-box" class="card" style="display:none;padding:0;overflow:hidden">
                         <div style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
                             <h3 style="margin: 0;">Tagok Leadandó Állapota</h3>
-                            <button id="manualis-zaras-btn" class="btn btn-danger" style="display: none; padding: 0.5rem 1rem; font-size: 0.8rem; margin: 0;">HETI ZÁRÁS</button>
+                            <button id="manualis-zaras-btn" class="btn btn-danger" style="display: none; padding: 0.5rem 1rem; font-size: 0.8rem; margin: 0;" onclick="hetiZaras()">HETI ZÁRÁS</button>
                         </div>
                         <div class="table-wrapper" style="padding: 0 1rem 1rem 1rem;">
                             <table>
@@ -1348,7 +1348,16 @@
     async function kilepAkcio(id) { if (await confirm("Biztosan kijelentkezel?")) { await apiFetch(`/api/akcio/${id}/leave`, { method: 'PUT' }); fetchAkciok(); fetchProfil(); } }
     async function zarAkcio(id) { if (await confirm("Lezárod?")) { await apiFetch(`/api/akcio/${id}/close`, { method: 'PUT' }); fetchAkciok(); } }
     async function szezonzaras() { if (await confirm("Biztosan archiválod az összes lezárt akciót és lenullázod a heti számlálókat?")) { await apiFetch('/api/akcio_archiv', { method: 'POST' }); fetchAkciok(); fetchProfil(); } }
-
+    async function hetiZaras() {
+        if (await confirm("Biztosan lezárod a hetet? Ezzel rögzíted a jelenlegi hiányokat és lenullázod a heti leadandókat.")) {
+            const r = await apiFetch('/api/leadando_zaras', { method: 'POST' });
+            if (r) {
+                alert("A heti leadandók sikeresen lezárásra kerültek!");
+                fetchLeadando();
+                if (typeof fetchWarnList === 'function') fetchWarnList();
+            }
+        }
+    }
     async function hozzaadAkciohoz(akcioId) {
         const s = document.getElementById(`add-user-${akcioId}`); if (!s || !s.value) return alert("Válassz ki egy tagot!");
         await apiFetch(`/api/akcio/${akcioId}/force_join`, { method: 'PUT', body: JSON.stringify({ tag_id: parseInt(s.value) }) }); fetchAkciok(); fetchProfil();
