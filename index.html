@@ -142,11 +142,31 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
-        @keyframes pulseAlert {
+        @keyframes pulseKOZOS {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+            70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        @keyframes pulseATM {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
             70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+        @keyframes pulseBANK {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+            70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        @keyframes pulseKUT {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .akcio-pulse-KOZOS { animation: pulseKOZOS 1.5s infinite; }
+        .akcio-pulse-ATM { animation: pulseATM 1.5s infinite; }
+        .akcio-pulse-BANK { animation: pulseBANK 1.5s infinite; }
+        .akcio-pulse-KUT { animation: pulseKUT 1.5s infinite; }
+
         .nav-btn-alert { 
             animation: pulseAlert 1.5s infinite !important; 
             background: rgba(239, 68, 68, 0.15) !important; 
@@ -376,6 +396,30 @@
         .tooltip { position: relative; display: inline-block; cursor: help; margin-left: 8px; }
         .tooltip .tooltiptext { visibility: hidden; width: 220px; background-color: var(--surface-light); color: var(--text); text-align: center; border-radius: var(--radius-sm); padding: 12px; position: absolute; z-index: 1000; bottom: 150%; left: 50%; margin-left: -110px; opacity: 0; transition: opacity 0.2s; border: 1px solid var(--border); font-size: 0.85rem; font-weight: normal; }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+        @keyframes pulse-nav-fill-KOZOS {
+            0% { background-color: rgba(59, 130, 246, 0.4); color: #ffffff !important; border-color: #3b82f6; }
+            50% { background-color: rgba(59, 130, 246, 0.9); color: #ffffff !important; border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+            100% { background-color: rgba(59, 130, 246, 0.4); color: #ffffff !important; border-color: #3b82f6; }
+        }
+        @keyframes pulse-nav-fill-ATM {
+            0% { background-color: rgba(239, 68, 68, 0.4); color: #ffffff !important; border-color: #ef4444; }
+            50% { background-color: rgba(239, 68, 68, 0.9); color: #ffffff !important; border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+            100% { background-color: rgba(239, 68, 68, 0.4); color: #ffffff !important; border-color: #ef4444; }
+        }
+        @keyframes pulse-nav-fill-BANK {
+            0% { background-color: rgba(245, 158, 11, 0.4); color: #ffffff !important; border-color: #f59e0b; }
+            50% { background-color: rgba(245, 158, 11, 0.95); color: #000000 !important; border-color: #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+            100% { background-color: rgba(245, 158, 11, 0.4); color: #ffffff !important; border-color: #f59e0b; }
+        }
+        @keyframes pulse-nav-fill-KUT {
+            0% { background-color: rgba(16, 185, 129, 0.4); color: #ffffff !important; border-color: #10b981; }
+            50% { background-color: rgba(16, 185, 129, 0.9); color: #ffffff !important; border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+            100% { background-color: rgba(16, 185, 129, 0.4); color: #ffffff !important; border-color: #10b981; }
+        }
+        .akcio-fül-pulse-KOZOS { animation: pulse-nav-fill-KOZOS 2s infinite ease-in-out !important; }
+        .akcio-fül-pulse-ATM { animation: pulse-nav-fill-ATM 2s infinite ease-in-out !important; }
+        .akcio-fül-pulse-BANK { animation: pulse-nav-fill-BANK 2s infinite ease-in-out !important; }
+        .akcio-fül-pulse-KUT { animation: pulse-nav-fill-KUT 2s infinite ease-in-out !important; }
     </style>
 </head>
 <body>
@@ -554,7 +598,7 @@
                         </h3>
                         <div style="display:flex;gap:15px;flex-wrap:wrap; align-items:center;">
                             <select id="uj-akcio-tipus" style="flex:1;min-width:150px;margin:0">
-                                <option value="ATM">ATM</option><option value="BANK">BANK</option><option value="SZIGET">SZIGET</option><option value="KÚT">KÚT</option>
+                                <option value="ATM">ATM</option><option value="BANK">BANK</option><option value="SZIGET">SZIGET</option><option value="KÚT">KÚT</option><option value="KÖZÖS">KÖZÖS</option>
                             </select>
                             <div id="tervezes-box" style="display:none; flex:1; min-width:150px;">
                                 <input type="datetime-local" id="uj-akcio-ido" style="margin:0;" title="Hagyd üresen, ha most azonnal indul">
@@ -885,7 +929,6 @@
             const welcomeName = sessionStorage.getItem('welcome_name');
             if (welcomeName) { udvozloUzenet(welcomeName); sessionStorage.removeItem('welcome_name'); }
 
-            // Intelligens háttér-frissítő indítása
             inditOkosFrissitest();
         }
     };
@@ -1261,7 +1304,26 @@
     function renderAkciok(l, iS = false) {
         const c = document.getElementById('akciok-lista'); if (!c) return; c.innerHTML = '';
         const aA = l.filter(x => x.aktiv && !x.archivalva); const lA = l.filter(x => !x.aktiv && !x.archivalva); const arA = l.filter(x => x.archivalva);
-        const aG = document.getElementById('nav-akcio'); if (aG) { if (aA.length > 0) aG.classList.add('nav-btn-alert'); else aG.classList.remove('nav-btn-alert'); }
+        const aG = document.getElementById('nav-akcio');
+        if (aG) {
+            aG.classList.remove('nav-btn-alert', 'akcio-fül-pulse-ATM', 'akcio-fül-pulse-BANK', 'akcio-fül-pulse-KOZOS', 'akcio-fül-pulse-KUT');
+
+            if (aA.length > 0) {
+                const latestActiveAction = aA.pop();
+                aA.push(latestActiveAction);
+                
+                if (latestActiveAction) {
+                    const pulseMap = {
+                        'ATM': 'akcio-fül-pulse-ATM',
+                        'BANK': 'akcio-fül-pulse-BANK',
+                        'KÖZÖS': 'akcio-fül-pulse-KOZOS',
+                        'KÚT': 'akcio-fül-pulse-KUT'
+                    };
+                    const pulseClass = pulseMap[latestActiveAction.tipus] || 'akcio-fül-pulse-KOZOS';
+                    aG.classList.add(pulseClass);
+                }
+            }
+        }
         
         let h = `<h3 style="margin: 20px 0 10px 0; font-size:1rem; color:var(--text-muted);">AKTÍV ESEMÉNYEK</h3>`;
         if (aA.length === 0) h += `<p style="color:var(--text-muted); font-size:0.9rem;">Nincs aktív esemény.</p>`; else aA.forEach(x => h += generalAkcioCard(x));
@@ -1287,9 +1349,16 @@
 
     function generalAkcioCard(a) {
         let isOrganizerOrAdmin = (a.szervezo_id === myUserId || myUserRang === 'DEV' || myPermissions.jog_admin);
+        
         let rH = a.resztvevok.map(x => {
             let kickBtn = (isOrganizerOrAdmin && a.aktiv && !a.archivalva) ? `<button class="btn btn-danger" style="padding:0.2rem 0.6rem; font-size:0.6rem; margin-left:auto;" onclick="eltavolitAkciobol(${a.id}, ${x.id}); event.stopPropagation();">KICK</button>` : '';
-            return `<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;"><div style="width:24px; height:24px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div> <span style="font-size:0.9rem;">${x.ic_nev || x.nev}</span> <small style="${kickBtn ? '' : 'margin-left:auto;'}">${new Date(x.ido).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>${kickBtn}</div>`;
+            
+            let rTag = ALL_TAGOK.find(t => t.id === x.id);
+            let rAvatar = (rTag && rTag.profilkep) 
+                ? `<img src="${rTag.profilkep}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;">` 
+                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+
+            return `<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;"><div style="width:24px; height:24px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; color:var(--text-muted); overflow:hidden;">${rAvatar}</div> <span style="font-size:0.9rem;">${x.ic_nev || x.nev}</span> <small style="${kickBtn ? '' : 'margin-left:auto;'}">${new Date(x.ido).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>${kickBtn}</div>`;
         }).join('');
 
         let addSection = '';
@@ -1307,22 +1376,39 @@
             if (a.szervezo_id === myUserId) g += `<span class="role-badge" style="background:rgba(255,255,255,0.1);">Szervező</span>`;
             else if (!b) g += `<button class="btn btn-primary" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="csatlakozikAkcio(${a.id}); event.stopPropagation();">Jelentkezés</button>`;
             else g += `<button class="btn" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="kilepAkcio(${a.id}); event.stopPropagation();">Kijelentkezés</button>`;
-            if (myPermissions.jog_akcio || myUserRang === 'DEV') { g += ` <button class="btn btn-danger" style="padding:0.4rem 1rem; font-size:0.8rem;" margin-left:8px;" onclick="zarAkcio(${a.id}); event.stopPropagation();">Zárás</button>`; }
+            if (myPermissions.jog_akcio || myUserRang === 'DEV') { g += ` <button class="btn btn-danger" style="padding:0.4rem 1rem; font-size:0.8rem; margin-left:8px;" onclick="zarAkcio(${a.id}); event.stopPropagation();">Zárás</button>`; }
         }
 
         const detailId = `details-${a.id}`;
         let idoNagy = `Esemény ideje: ${new Date(a.datum).toLocaleString()}`;
         if (a.tervezett_ido) { let tD = new Date(a.tervezett_ido); idoNagy = `<strong style="color:var(--warn);">Tervezett időpont: ${tD.toLocaleString([], {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})}</strong>`; }
 
+        let actionColor = 'var(--accent)'; 
+        let pulseClass = '';
+
+        if (a.tipus === 'ATM') actionColor = 'var(--danger)';
+        else if (a.tipus === 'BANK') actionColor = 'var(--warn)';
+        else if (a.tipus === 'KÚT') actionColor = 'var(--success)';
+
+        if (a.aktiv && !a.archivalva) {
+            const pulseMap = { 'ATM': 'akcio-pulse-ATM', 'BANK': 'akcio-pulse-BANK', 'KÖZÖS': 'akcio-pulse-KOZOS', 'KÚT': 'akcio-pulse-KUT' };
+            pulseClass = pulseMap[a.tipus] || 'akcio-pulse-KOZOS'; 
+        }
+        
+        let szTag = ALL_TAGOK.find(t => t.id === a.szervezo_id);
+        let szAvatar = (szTag && szTag.profilkep) 
+            ? `<img src="${szTag.profilkep}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;">` 
+            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+
         return `
-            <div class="akcio-compact" onclick="toggleDetails('${detailId}')">
-                <div class="akcio-avatar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+            <div class="akcio-compact ${pulseClass}" onclick="toggleDetails('${detailId}')" style="border-left: 4px solid ${actionColor}; text-align: left;">
+                <div class="akcio-avatar" style="color:${actionColor}; border: 1px solid ${actionColor}; background:transparent; overflow:hidden;">${szAvatar}</div>
                 <div style="flex:1;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-weight:600; color:var(--text);">${a.szervezo_nev}</span>
                         <div style="display:flex; align-items:center; gap:10px;"><span style="color:var(--text-muted); font-size:0.85rem;">${a.tervezett_ido ? `<span style="color:var(--warn); font-weight:bold;">${new Date(a.tervezett_ido).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>` : new Date(a.datum).toLocaleDateString()}</span>${g}</div>
                     </div>
-                    <div style="margin-top:4px;"><span style="color:var(--text-muted); font-size:0.85rem;">${a.tipus}</span><span class="role-badge" style="background:var(--surface-hover);">${a.resztvevok.length} résztvevő</span></div>
+                    <div style="margin-top:4px;"><span style="color:${actionColor}; font-weight:bold; font-size:0.85rem;">${a.tipus}</span><span class="role-badge" style="background:var(--surface-hover);">${a.resztvevok.length} résztvevő</span></div>
                 </div>
             </div>
             <div id="${detailId}" class="card" style="display:none; margin-top:-8px; margin-bottom:15px; border-top:none; border-top-left-radius:0; border-top-right-radius:0; background:var(--surface-light); padding:1.5rem;">
