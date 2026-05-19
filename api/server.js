@@ -1,6 +1,14 @@
+const express = require('express');
+const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+
+const app = express();
+
+// CORS engedélyezése és JSON parzoló middleware-ek
+app.use(cors());
+app.use(express.json());
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 const JWT_SECRET = process.env.JWT_SECRET || 'titkos-kulcs-123';
@@ -9,7 +17,8 @@ const SALT_ROUNDS = 10;
 //Memóriazár
 let isZarasFolyamatban = false;
 
-export default async function handler(req, res) {
+// Catch-all útvonal az összes API kérés kezelésére (Express 5 kompatibilis formátum)
+app.all('*any', async (req, res) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     const { method, url } = req;
     const path = url.split('?')[0];
@@ -50,7 +59,7 @@ export default async function handler(req, res) {
             const { data: t } = await supabase.from('tagok').select('*').eq('id', user.id).single();
             if (!t) return res.json({ valid: false, deleted: true }); 
             if (t.rang !== user.rang) {
-                const { data: jog } = await supabase.from('jogosultsagok').select('*').eq('rang', t.rang).single();
+                const { data: jog = null } = await supabase.from('jogosultsagok').select('*').eq('rang', t.rang).single();
                 const isDev = t.rang === 'DEV';
                 
                 const newToken = jwt.sign({ 
@@ -88,7 +97,7 @@ export default async function handler(req, res) {
                             tag_id: t.id, 
                             szervezo_id: user.id, 
                             szervezo_nev: user.ic_nev || user.nev, 
-                            indok: `Leadandó hiánya (Leadva: ${t.heti_leadva} / ${quota})`, 
+                            indok: `Leadandó hiánya (Leadva: ${t.heti_leadva}$ / ${quota}$)`, 
                             lejaret: lejarat.toISOString() 
                         });
                     }
@@ -166,11 +175,12 @@ export default async function handler(req, res) {
                 return res.json({ success: true });
             }
         }
-        if (path.startsWith('/api/kervenyek/') && path.split('/').length > 3) {
+        if (path.startsWith('/api/kervenyek/')) {
             const parts = path.split('/');
             const id = parts[3];
             const action = parts[4];
             
+            // A kommentek fogadása
             if (method === 'POST' && action === 'komment') {
                 const { szoveg } = req.body;
                 if (!szoveg) return res.status(400).json({ error: 'Üres üzenet!' });
@@ -196,22 +206,27 @@ export default async function handler(req, res) {
         }
 
         //AKCIÓK
-        const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL; 
+        if (path === '/api/akcio') {
+            if (method === 'GET') { const { data } = await supabase.from('akciok').select('*').order('datum', { ascending: false }); return res.json(data || []); }
+            if (method === 'POST') {
+                const tervezett = req.body.tervezett_ido ? req.body.tervezett_ido : null;
+                await supabase.from('akciok').insert([{ tipus: req.body.tipus, szervezo_id: user.id, szervezo_nev: user.ic_nev || user.nev, tervezett_ido: tervezett }]);
+                const { data: t } = await supabase.from('tagok').select('akcio_szervezett').eq('id', user.id).single(); 
+                await supabase.from('tagok').update({ akcio_szervezett: (t.akcio_szervezett || 0) + 1 }).eq('id', user.id); 
 
-        if (path === '/api/akcio' && method === 'POST') {
-            const tervezett = req.body.tervezett_ido ? req.body.tervezett_ido : null;
-            await supabase.from('akciok').insert([{ tipus: req.body.tipus, szervezo_id: user.id, szervezo_nev: user.ic_nev || user.nev, tervezett_ido: tervezett }]);
-            const { data: t } = await supabase.from('tagok').select('akcio_szervezett').eq('id', user.id).single(); 
-            await supabase.from('tagok').update({ akcio_szervezett: (t.akcio_szervezett || 0) + 1 }).eq('id', user.id); 
-            if (DISCORD_WEBHOOK_URL) {
+                const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1491388738927067187/zAcIXgjXZdt3bknRRLp4rMnj0paoGYDpu-WsYHg7YJtDeVSq4XS4wzO3CMoRVgXaqhti'; 
                 try {
                     let desc = `**Szervező:** ${user.ic_nev || user.nev}`;
                     if(tervezett) desc += `\n**Tervezett időpont:** ${new Date(tervezett).toLocaleString('hu-HU', { timeZone: 'Europe/Budapest' })}\n\nWeben tudtok jelentkezni!`;
-                    const discordMessage = { content: "🚨 **Új esemény** 🚨 <@&1491389401606000661>", embeds: [{ title: `[ ${req.body.tipus} ]`, description: desc, color: 3066993, timestamp: new Date().toISOString() }] };
+                    
+                    const discordMessage = {
+                        content: "🚨 **Új esemény** 🚨 <@&1491389401606000661>",
+                        embeds: [{ title: `[ ${req.body.tipus} ]`, description: desc, color: 3066993, timestamp: new Date().toISOString() }]
+                    };
                     await fetch(DISCORD_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(discordMessage) });
-                } catch (err) { console.error("Discord webhook hiba:", err); }
+                } catch (err) {}
+                return res.json({ success: true });
             }
-            return res.json({ success: true });
         }
         if (path.startsWith('/api/akcio/') && !path.includes('archiválás')) {
             const id = path.split('/')[3], action = path.split('/')[4];
@@ -237,6 +252,8 @@ export default async function handler(req, res) {
                 await supabase.from('akciok').update({ aktiv: false }).eq('id', id); 
                 return res.json({ success: true }); 
             }
+            
+            // KÉZI HOZZÁADÁS ÉS KIRÚGÁS (STATISZTIKA +-1)
             if (method === 'PUT' && action === 'force_join') {
                 const targetId = req.body.tag_id;
                 const { data: a } = await supabase.from('akciok').select('resztvevok').eq('id', id).single();
@@ -260,16 +277,19 @@ export default async function handler(req, res) {
                 await supabase.from('tagok').update({ akcio_resztvett: Math.max(0, (t.akcio_resztvett || 0) - 1) }).eq('id', targetId);
                 return res.json({ success: true });
             }
-            //TÖRLÉS FUNKCIÓ
-            if (method === 'DELETE') {
+            if (method === 'DELETE' && !action) {
                 const { data: a } = await supabase.from('akciok').select('szervezo_id, resztvevok').eq('id', id).single();
                 if (a) {
                     const { data: org } = await supabase.from('tagok').select('akcio_szervezett').eq('id', a.szervezo_id).single();
-                    if (org && org.akcio_szervezett > 0) await supabase.from('tagok').update({ akcio_szervezett: org.akcio_szervezett - 1 }).eq('id', a.szervezo_id);
+                    if (org && org.akcio_szervezett > 0) {
+                        await supabase.from('tagok').update({ akcio_szervezett: org.akcio_szervezett - 1 }).eq('id', a.szervezo_id);
+                    }
                     if (a.resztvevok && a.resztvevok.length > 0) {
                         for (let r of a.resztvevok) {
                             const { data: pTag } = await supabase.from('tagok').select('akcio_resztvett').eq('id', r.id).single();
-                            if (pTag && pTag.akcio_resztvett > 0) await supabase.from('tagok').update({ akcio_resztvett: pTag.akcio_resztvett - 1 }).eq('id', r.id);
+                            if (pTag && pTag.akcio_resztvett > 0) {
+                                await supabase.from('tagok').update({ akcio_resztvett: pTag.akcio_resztvett - 1 }).eq('id', r.id);
+                            }
                         }
                     }
                 }
@@ -277,15 +297,34 @@ export default async function handler(req, res) {
                 return res.json({ success: true });
             }
         }
+        if (path === '/api/akcio_archiv' && method === 'POST') { 
+            await supabase.from('akciok').update({ archivalva: true, aktiv: false }).eq('archivalva', false); 
+            await supabase.from('tagok').update({ akcio_szervezett: 0, akcio_resztvett: 0 }).gt('id', 0); return res.json({ success: true }); 
+        }
 
         //KASSZA
         if (path === '/api/kassza') {
-            if (method === 'GET') { const { data: a } = await supabase.from('kassza_log').select('osszeg, tipus'); const { data: l } = await supabase.from('kassza_log').select('*').order('datum', { ascending: false }).limit(30); const b = a ? a.reduce((acc, curr) => curr.tipus === 'be' ? acc + curr.osszeg : acc - curr.osszeg, 0) : 0; return res.json({ balance: b, logs: l || [] }); }
+            if (method === 'GET') { 
+                const { data: a } = await supabase.from('kassza_log').select('osszeg, tipus'); const { data: l } = await supabase.from('kassza_log').select('*').order('datum', { ascending: false }).limit(30); 
+                const b = a ? a.reduce((acc, curr) => curr.tipus === 'be' ? acc + curr.osszeg : acc - curr.osszeg, 0) : 0; return res.json({ balance: b, logs: l || [] }); 
+            }
             if (method === 'POST') { await supabase.from('kassza_log').insert([{ tipus: req.body.tipus, osszeg: parseInt(req.body.osszeg), operator: req.body.operator, bizonyitek: req.body.bizonyitek }]); return res.json({ success: true }); }
         }
 
         //TAGOK ÉS JOGOK
-        if (path === '/api/tagok' && method === 'GET') { const { data: t } = await supabase.from('tagok').select('*'); const { data: r } = await supabase.from('jogosultsagok').select('*'); const { data: w } = await supabase.from('figyelmeztetesek').select('tag_id, aktiv, lejaret'); return res.json(t.map(x => { let aktiv_warn_count = 0; if (w) aktiv_warn_count = w.filter(warn => warn.tag_id === x.id && warn.aktiv && (!warn.lejaret || new Date(warn.lejaret) > new Date())).length; return { ...x, aktiv_warn_count, prioritas: r.find(y => y.rang === x.rang)?.prioritas || 999 }; }).sort((a, b) => a.prioritas - b.prioritas)); }
+        if (path === '/api/tagok' && method === 'GET') { 
+            const { data: t } = await supabase.from('tagok').select('*'); 
+            const { data: r } = await supabase.from('jogosultsagok').select('*'); 
+            const { data: w } = await supabase.from('figyelmeztetesek').select('tag_id, aktiv, lejaret');
+            
+            return res.json(t.map(x => {
+                let aktiv_warn_count = 0;
+                if (w) {
+                    aktiv_warn_count = w.filter(warn => warn.tag_id === x.id && warn.aktiv && (!warn.lejaret || new Date(warn.lejaret) > new Date())).length;
+                }
+                return { ...x, aktiv_warn_count, prioritas: r.find(y => y.rang === x.rang)?.prioritas || 999 };
+            }).sort((a, b) => a.prioritas - b.prioritas)); 
+        }
         if (path === '/api/tagok' && method === 'POST') { const hp = await bcrypt.hash('123456', SALT_ROUNDS); const { error } = await supabase.from('tagok').insert([{ ...req.body, jelszo: hp, elso_belepes: true }]); if(error) return res.status(400).json({error:'Név már létezik!'}); return res.json({ success: true }); }
         if (path.startsWith('/api/tagok/')) { const id = path.split('/').pop(); if (method === 'PUT') { await supabase.from('tagok').update(req.body).eq('id', id); return res.json({ success: true }); } if (method === 'DELETE') { await supabase.from('tagok').delete().eq('id', id); return res.json({ success: true }); } }
 
@@ -299,11 +338,25 @@ export default async function handler(req, res) {
             if (method === 'GET') { 
                 const { data: p } = await supabase.from('tagok').select('*').eq('id', id).single(); 
                 const { data: w } = await supabase.from('figyelmeztetesek').select('*').eq('tag_id', id).order('datum', { ascending: false }); 
-                const tizennegyNapja = new Date(); tizennegyNapja.setDate(tizennegyNapja.getDate() - 14);
+                
+                // 14 napos statisztika kiszámolása
+                const tizennegyNapja = new Date();
+                tizennegyNapja.setDate(tizennegyNapja.getDate() - 14);
                 const { data: recentAkciok } = await supabase.from('akciok').select('szervezo_id, resztvevok').gte('datum', tizennegyNapja.toISOString());
-                let heti2Szervezett = 0; let heti2Resztvett = 0;
-                if (recentAkciok) { recentAkciok.forEach(akcio => { if (akcio.szervezo_id === id) heti2Szervezett++; if (akcio.resztvevok && akcio.resztvevok.some(r => r.id === id)) heti2Resztvett++; }); }
-                p.heti2_szervezett = heti2Szervezett; p.heti2_resztvett = heti2Resztvett;
+                
+                let heti2Szervezett = 0;
+                let heti2Resztvett = 0;
+                
+                if (recentAkciok) {
+                    recentAkciok.forEach(akcio => {
+                        if (akcio.szervezo_id === id) heti2Szervezett++;
+                        if (akcio.resztvevok && akcio.resztvevok.some(r => r.id === id)) heti2Resztvett++;
+                    });
+                }
+                
+                p.heti2_szervezett = heti2Szervezett;
+                p.heti2_resztvett = heti2Resztvett;
+                
                 p.warnings = w.map(x => ({ ...x, aktiv_allapot: x.aktiv && (!x.lejaret || new Date(x.lejaret) > new Date()), indok: (user.jog_warn || user.id === id || user.rang === 'DEV') ? x.indok : '*** Rejtett ***' })); 
                 return res.json(p); 
             } else { await supabase.from('tagok').update(req.body).eq('id', id); return res.json({ success: true }); } 
@@ -320,4 +373,10 @@ export default async function handler(req, res) {
 
         res.status(404).send('Not Found');
     } catch (err) { res.status(500).json({ error: err.message }); }
-}
+});
+
+// Szerver elindítása a Render által kiosztott dinamikus porton
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`A Klani E Detit HQ szerver sikeresen elindult a ${PORT}-es porton!`);
+});

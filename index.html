@@ -425,29 +425,19 @@
 <body>
 
     <div id="login-screen" class="auth-screen active" style="height:100vh;display:flex;align-items:center;justify-content:center; position: relative; z-index: 1000;">
-    <div class="auth-card" style="width: 400px; box-sizing: border-box;">
-        <div class="auth-seal">
-            <img src="https://i.imgur.com/69WuM5D.png" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+        <div class="auth-card" style="width: 400px; box-sizing: border-box;">
+            <div class="auth-seal">
+                <img src="https://i.imgur.com/69WuM5D.png" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
+            <h2>Klani E Detit</h2>
+            <div class="input-group">
+                <input type="text" id="login-user" placeholder="Felhasználó név">
+                <input type="password" id="login-pass" placeholder="Jelszó">
+            </div>
+            <button class="btn btn-primary" onclick="bejelentkezes()">Bejelentkezés</button>
+            <p id="login-hiba" style="color:var(--danger); margin: 1rem 0 0 0; font-size: 0.9rem; min-height: 20px;"></p>
         </div>
-        <h2>Klani E Detit</h2>
-        
-        <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; width: 100%; box-sizing: border-box;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 40px; height: 40px; color: var(--warn); margin: 0 auto 10px auto; display: block;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h3 style="color: var(--warn); margin: 0 0 10px 0; font-size: 1.1rem;">Karbantartás alatt</h3>
-            <p style="color: var(--text-muted); margin: 0; font-size: 0.9rem; line-height: 1.5;">Az oldal jelenleg nem elérhető. Kérlek, nézz vissza később!</p>
-        </div>
-
-        <div class="input-group" style="display: none;">
-            <input type="text" id="login-user" placeholder="Felhasználó név" disabled>
-            <input type="password" id="login-pass" placeholder="Jelszó" disabled>
-        </div>
-        
-        <button class="btn btn-primary" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%;">Bejelentkezés szünetel</button>
-        <p id="login-hiba" style="color:var(--danger); margin: 1rem 0 0 0; font-size: 0.9rem; min-height: 20px;"></p>
     </div>
-</div>
     
     <div id="main-app" style="display:none" class="app-layout">
         
@@ -460,8 +450,8 @@
                 <button class="nav-btn" onclick="tab('kassza-section',this)">Frakció számla</button>
                 <button class="nav-btn" id="nav-leadando" onclick="tab('leadando-section',this)">Leadandó</button>
                 <button class="nav-btn" onclick="tab('tagok-section',this)">Tagok</button>
-                <button class="nav-btn" onclick="tab('leaderboard-section',this)">Leaderboard</button>
                 <button class="nav-btn" id="nav-akcio" onclick="tab('akcio-section',this)">Akció</button>
+                <button class="nav-btn" onclick="tab('leaderboard-section',this)">Leaderboard</button>
                 <button class="nav-btn" id="nav-kerveny" onclick="tab('kervenyek-section',this)">Kérvények</button>
                 <button class="nav-btn" id="nav-warn" style="display:none;color:var(--warn)" onclick="tab('warn-section',this)">WARN</button>
                 <button class="nav-btn" onclick="tab('profil-section',this)">Saját Profil</button>
@@ -620,7 +610,37 @@
                     <input type="text" id="akcio-kereso" placeholder="Keresés..." style="background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:12px 20px;" oninput="szuresAkciok(this.value)">
                     <div id="akciok-lista"></div>
                 </div>
-                
+                <div id="leaderboard-section" class="section">
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:1.5rem;">
+                <h2 style="margin:0; font-family:'Playfair Display', serif; letter-spacing:0.5px;">Leaderboard</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-primary" id="btn-top-resztvett" onclick="valtsLeaderboard('resztvett')">Résztvett Akciók</button>
+                    <button class="btn" id="btn-top-szervezett" onclick="valtsLeaderboard('szervezett')">Szervezett Akciók</button>
+                </div>
+            </div>
+
+            <div id="leaderboard-notice" class="card" style="display:none; padding:1.2rem; text-align:center; border:1px solid var(--warn); background:rgba(245, 158, 11, 0.05); color:var(--warn); font-weight:600; font-size:0.95rem; margin-bottom:1.5rem; border-radius:var(--radius-sm);">
+                Akciószervezőként CSAK a szervezett akció részlegen szerepelhetsz!
+            </div>
+
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div class="table-wrapper" style="padding: 1rem;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 90px; text-align: center;">Helyezés</th>
+                                <th>Tag adatai</th>
+                                <th>Rang</th>
+                                <th style="text-align: center;" id="leaderboard-th-ertek">Résztvett Akciók</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-lista">
+                            <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Betöltés...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
                 <div id="kassza-section" class="section">
                     <div class="card" style="text-align:center">
                         <p style="color:var(--text-muted); margin-bottom:5px;">Jelenlegi egyenleg</p>
@@ -665,37 +685,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="leaderboard-section" class="section">
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:1.5rem;">
-                <h2 style="margin:0; font-family:'Playfair Display', serif; letter-spacing:0.5px;">Leaderboard</h2>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn btn-primary" id="btn-top-resztvett" onclick="valtsLeaderboard('resztvett')">Résztvett Akciók</button>
-                    <button class="btn" id="btn-top-szervezett" onclick="valtsLeaderboard('szervezett')">Szervezett Akciók</button>
-                </div>
-            </div>
-
-            <div id="leaderboard-notice" class="card" style="display:none; padding:1.2rem; text-align:center; border:1px solid var(--warn); background:rgba(245, 158, 11, 0.05); color:var(--warn); font-weight:600; font-size:0.95rem; margin-bottom:1.5rem; border-radius:var(--radius-sm);">
-                Akciószervezőként CSAK a szervezett akció részlegen szerepelhetsz!
-            </div>
-
-            <div class="card" style="padding:0; overflow:hidden;">
-                <div class="table-wrapper" style="padding: 1rem;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 90px; text-align: center;">Helyezés</th>
-                                <th>Tag adatai</th>
-                                <th>Rang</th>
-                                <th style="text-align: center;" id="leaderboard-th-ertek">Résztvett Akciók</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboard-lista">
-                            <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Betöltés...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                
                 <div id="profil-section" class="section"></div>
                 
                 <div id="jogok-section" class="section">
@@ -910,8 +900,20 @@
     }
 
     async function bejelentkezes() {
-        document.getElementById('login-hiba').innerText = "Az oldal jelenleg karbantartás alatt áll.";
-        return;
+        const n = document.getElementById('login-user').value;
+        const j = document.getElementById('login-pass').value;
+        const r = await fetch(API_BASE_URL + '/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nev: n, jelszo: j }) });
+        const d = await r.json();
+        if (d.success) {
+            if (d.elso_belepes) {
+                window.tempId = d.user.id; document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex'; 
+                document.querySelector('.sidebar').style.display = 'none'; 
+                tab('password-screen', null);
+            } else {
+                localStorage.setItem('klani_token', d.token); sessionStorage.setItem('welcome_name', d.ic_nev || n); location.reload();
+            }
+        } else { document.getElementById('login-hiba').innerText = d.error; }
     }
 
     function tab(i, b) {
@@ -920,12 +922,12 @@
         if (b) { document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active-nav')); b.classList.add('active-nav'); }
         if (i === 'profil-section') fetchProfil();
         if (i === 'akcio-section') fetchAkciok();
+        if (i === 'leaderboard-section') renderLeaderboard();
         if (i === 'warn-section') fetchWarnList();
         if (i === 'leadando-section') fetchLeadando();
         if (i === 'kervenyek-section') fetchKervenyek();
         if (i === 'hirek-section') fetchHirek();
         if (i === 'kassza-section') fetchBalance();
-        if (i === 'leaderboard-section') renderLeaderboard();
     }
 
     window.onload = async () => {
@@ -936,8 +938,8 @@
             
             document.getElementById('logged-in-user').innerHTML = `<div style="width:28px; height:28px; background:var(--surface-light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text-muted); border: 1px solid var(--border); overflow: hidden;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><span>${myUserName}</span>`;
             document.getElementById('header-rang').innerText = 'RANG: ' + myUserRang; 
-            document.getElementById('login-screen').style.display = 'flex'; 
-        document.getElementById('main-app').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'none'; 
+            document.getElementById('main-app').style.display = 'flex';
             
             checkA();
             const rJ = await apiFetch('/api/jogosultsagok'); ALL_RANGS = await rJ.json();
@@ -960,6 +962,7 @@
             if (welcomeName) { udvozloUzenet(welcomeName); sessionStorage.removeItem('welcome_name'); }
 
             inditOkosFrissitest();
+            initLeaderboardButtons();
         }
     };
 
@@ -1467,7 +1470,7 @@
     async function kilepAkcio(id) { if (await confirm("Biztosan kijelentkezel?")) { await apiFetch(`/api/akcio/${id}/leave`, { method: 'PUT' }); fetchAkciok(); fetchProfil(); } }
     async function zarAkcio(id) { if (await confirm("Lezárod?")) { await apiFetch(`/api/akcio/${id}/close`, { method: 'PUT' }); fetchAkciok(); } }
     async function torolAkcio(id) {
-        if (await confirm("Biztosan törlöd ezt az eseményt?\n\nA statisztika (szervezés és az esetleges részvétel) mindenkitől visszavonásra kerül!")) {
+        if (await confirm("Biztosan törlöd ezt az eseményt?\n\nA statisztika (szervezés és az esetleges részvétel) mindenkiből visszavonásra kerül!")) {
             const r = await apiFetch(`/api/akcio/${id}`, { method: 'DELETE' });
             if (r) {
                 alert("Az akció véglegesen törölve, a statisztikák korrigálva!");
@@ -1632,6 +1635,112 @@
             kontener.innerHTML = `<div class="aktivitas-card" style="margin-top: 1.5rem;"><div class="aktivitas-info"><h3>Akció szervezés</h3><p>Szervezz akciókat!</p></div><div class="progress-circle" style="background: conic-gradient(var(${szervezett >= SZERVEZO_CEL ? '--success' : '--warn'}) ${szazalekSzerv}%, var(--surface-light) ${szazalekSzerv}%)"><div class="progress-text"><span>${szervezett}</span> / ${SZERVEZO_CEL}</div></div><div style="margin-top:20px; font-size:0.9rem;">${szervezett >= SZERVEZO_CEL ? '<span style="color:var(--success);">Cél teljesítve</span>' : `Még <span style="color:var(--text);">${SZERVEZO_CEL - szervezett}</span> kell a célhoz`}</div></div>`;
         } else { kontener.innerHTML = ''; }
     }
+    let currentView = 'resztvett';
+
+function switchLeaderboard(type) {
+    currentView = type;
+    document.getElementById('btn-resztvett').className = (type === 'resztvett') ? 'btn btn-primary' : 'btn';
+    const btnSzerv = document.getElementById('btn-szervezett');
+    if(btnSzerv) btnSzerv.className = (type === 'szervezett') ? 'btn btn-primary' : 'btn';
+    
+    document.getElementById('th-ertek').innerText = (type === 'szervezett') ? 'Szervezett' : 'Résztvett';
+    
+    renderLeaderboard();
+}
+
+//LEADERBOARD
+    let aktualisTopTipus = 'resztvett';
+
+    function valtsLeaderboard(tipus) {
+        aktualisTopTipus = tipus;
+        const btnResztvett = document.getElementById('btn-top-resztvett');
+        const btnSzervezett = document.getElementById('btn-top-szervezett');
+        const thErtek = document.getElementById('leaderboard-th-ertek');
+
+        if (tipus === 'resztvett') {
+            btnResztvett.classList.add('btn-primary');
+            btnSzervezett.classList.remove('btn-primary');
+            if (thErtek) thErtek.innerText = 'Résztvett Akciók';
+        } else {
+            btnSzervezett.classList.add('btn-primary');
+            btnResztvett.classList.remove('btn-primary');
+            if (thErtek) thErtek.innerText = 'Szervezett Akciók';
+        }
+        renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+        const tb = document.getElementById('leaderboard-lista');
+        if (!tb) return;
+        tb.innerHTML = '';
+        const noticeEl = document.getElementById('leaderboard-notice');
+        if (noticeEl) {
+            if (myPermissions && (myPermissions.jog_akcio || myUserRang === 'DEV')) {
+                noticeEl.style.display = 'block';
+            } else {
+                noticeEl.style.display = 'none';
+            }
+        }
+
+        if (!ALL_TAGOK || ALL_TAGOK.length === 0) {
+            tb.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Nincsenek elérhető adatok a tagokról.</td></tr>`;
+            return;
+        }
+        function vanSzervezoJoga(tag) {
+            if (tag.rang === 'DEV') return true;
+            if (!ALL_RANGS) return false;
+            const rangAdat = ALL_RANGS.find(r => r.rang === tag.rang);
+            return rangAdat ? !!rangAdat.jog_akcio : false;
+        }
+        let szurtTagok = ALL_TAGOK.filter(x => x.rang !== 'DEV');
+        if (aktualisTopTipus === 'resztvett') {
+            szurtTagok = szurtTagok.filter(x => !vanSzervezoJoga(x));
+            szurtTagok.sort((a, b) => (b.akcio_resztvett || 0) - (a.akcio_resztvett || 0));
+        } else {
+            szurtTagok = szurtTagok.filter(x => vanSzervezoJoga(x));
+            szurtTagok.sort((a, b) => (b.akcio_szervezett || 0) - (a.akcio_szervezett || 0));
+        }
+
+        if (szurtTagok.length === 0) {
+            tb.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nincs megjeleníthető tag ebben a kategóriában.</td></tr>`;
+            return;
+        }
+
+        szurtTagok.forEach((x, index) => {
+            let helyezes = index + 1;
+            let helyezesDesign = `<span style="font-weight:700; color:var(--text-muted); font-size:1rem;">${helyezes}.</span>`;
+            
+            if (helyezes === 1) helyezesDesign = `<span style="font-size:1.4rem; filter: drop-shadow(0 0 4px #f59e0b);">🥇</span>`;
+            if (helyezes === 2) helyezesDesign = `<span style="font-size:1.4rem; filter: drop-shadow(0 0 4px #a1a1aa);">🥈</span>`;
+            if (helyezes === 3) helyezesDesign = `<span style="font-size:1.4rem; filter: drop-shadow(0 0 4px #b45309);">🥉</span>`;
+
+            let tagAvatar = x.profilkep
+                ? `<img src="${x.profilkep}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;">`
+                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+
+            let darabszam = aktualisTopTipus === 'resztvett' ? (x.akcio_resztvett || 0) : (x.akcio_szervezett || 0);
+
+            tb.innerHTML += `
+                <tr>
+                    <td style="text-align: center; vertical-align: middle;">${helyezesDesign}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <div style="width:36px; height:36px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; color:var(--text-muted); overflow: hidden;">
+                                ${tagAvatar}
+                            </div>
+                            <div>
+                                <div style="font-weight:600; color:var(--text);">${x.ic_nev || '-'}</div>
+                                <div style="color:var(--text-muted); font-size:0.8rem;">@${x.nev}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="role-badge">${x.rang}</span></td>
+                    <td style="text-align: center; font-weight: 700; color: var(--accent); font-size: 1.1rem;">
+                        ${darabszam} db
+                    </td>
+                </tr>`;
+        });
+    }
 
     function udvozloUzenet(icNev) {
         let t = document.getElementById('welcome-toast'); if (!t) { t = document.createElement('div'); t.id = 'welcome-toast'; document.body.appendChild(t); }
@@ -1701,108 +1810,6 @@
             inditOkosFrissitest();
         }
     });
-    let aktualisTopTipus = 'resztvett';
-
-    function valtsLeaderboard(tipus) {
-        aktualisTopTipus = tipus;
-        const btnResztvett = document.getElementById('btn-top-resztvett');
-        const btnSzervezett = document.getElementById('btn-top-szervezett');
-        const thErtek = document.getElementById('leaderboard-th-ertek');
-
-        if (tipus === 'resztvett') {
-            btnResztvett.classList.add('btn-primary');
-            btnSzervezett.classList.remove('btn-primary');
-            if (thErtek) thErtek.innerText = 'Résztvett Akciók';
-        } else {
-            btnSzervezett.classList.add('btn-primary');
-            btnResztvett.classList.remove('btn-primary');
-            if (thErtek) thErtek.innerText = 'Szervezett Akciók';
-        }
-        renderLeaderboard();
-    }
-
-    function renderLeaderboard() {
-        const tb = document.getElementById('leaderboard-lista');
-        if (!tb) return;
-        tb.innerHTML = '';
-
-        // Értesítés megjelenítése a bejelentkezett tagnak, ha van akciószervező joga
-        const noticeEl = document.getElementById('leaderboard-notice');
-        if (noticeEl) {
-            if (myPermissions && (myPermissions.jog_akcio || myUserRang === 'DEV')) {
-                noticeEl.style.display = 'block';
-            } else {
-                noticeEl.style.display = 'none';
-            }
-        }
-
-        if (!ALL_TAGOK || ALL_TAGOK.length === 0) {
-            tb.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Nincsenek elérhető adatok a tagokról.</td></tr>`;
-            return;
-        }
-
-        // Segédfüggvény, ami ellenőrzi az adott tag jogosultságát az ALL_RANGS táblából
-        function vanSzervezoJoga(tag) {
-            if (tag.rang === 'DEV') return true;
-            if (!ALL_RANGS) return false;
-            const rangAdat = ALL_RANGS.find(r => r.rang === tag.rang);
-            return rangAdat ? !!rangAdat.jog_akcio : false;
-        }
-
-        // Alapértelmezetten kivesszük a DEV-et a listából
-        let szurtTagok = ALL_TAGOK.filter(x => x.rang !== 'DEV');
-
-        // SZŰRÉS: Az akciószervezők CSAK a szervezett részlegen jelenhetnek meg
-        if (aktualisTopTipus === 'resztvett') {
-            // Elrejtjük azokat a tagokat, akiknek van szervezői joguk
-            szurtTagok = szurtTagok.filter(x => !vanSzervezoJoga(x));
-            szurtTagok.sort((a, b) => (b.akcio_resztvett || 0) - (a.akcio_resztvett || 0));
-        } else {
-            // Csak azokat mutatjuk, akiknek van joguk szervezni
-            szurtTagok = szurtTagok.filter(x => vanSzervezoJoga(x));
-            szurtTagok.sort((a, b) => (b.akcio_szervezett || 0) - (a.akcio_szervezett || 0));
-        }
-
-        if (szurtTagok.length === 0) {
-            tb.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nincs megjeleníthető tag ebben a kategóriában.</td></tr>`;
-            return;
-        }
-
-        szurtTagok.forEach((x, index) => {
-            let helyezes = index + 1;
-            let helyezesDesign = `<span style="font-weight:700; color:var(--text-muted); font-size:1rem;">${helyezes}.</span>`;
-            
-            if (helyezes === 1) helyezesDesign = `<span style="font-size:1.4rem; filter: drop-shadow(0 0 4px #f59e0b);">🥇</span>`;
-            if (helyezes === 2) helyezesDesign = `<span style="font-size:1.4rem; filter: drop-shadow(0 0 4px #a1a1aa);">🥈</span>`;
-            if (helyezes === 3) helyezesDesign = `<span style="font-size:1.4rem; filter: drop-shadow(0 0 4px #b45309);">🥉</span>`;
-
-            let tagAvatar = x.profilkep
-                ? `<img src="${x.profilkep}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;">`
-                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-
-            let darabszam = aktualisTopTipus === 'resztvett' ? (x.akcio_resztvett || 0) : (x.akcio_szervezett || 0);
-
-            tb.innerHTML += `
-                <tr>
-                    <td style="text-align: center; vertical-align: middle;">${helyezesDesign}</td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <div style="width:36px; height:36px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; color:var(--text-muted); overflow: hidden;">
-                                ${tagAvatar}
-                            </div>
-                            <div>
-                                <div style="font-weight:600; color:var(--text);">${x.ic_nev || '-'}</div>
-                                <div style="color:var(--text-muted); font-size:0.8rem;">@${x.nev}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="role-badge">${x.rang}</span></td>
-                    <td style="text-align: center; font-weight: 700; color: var(--accent); font-size: 1.1rem;">
-                        ${darabszam} db
-                    </td>
-                </tr>`;
-        });
-    }
 </script>
 </body>
 </html>
