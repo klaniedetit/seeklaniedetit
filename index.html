@@ -1655,7 +1655,7 @@
     async function torolHir(id) { if (await confirm("Biztosan törlöd ezt a hírbejegyzést?")) { const r = await apiFetch(`/api/hirek/${id}`, { method: 'DELETE' }); if(r) fetchHirek(); } }
     function kijelentkezes() { localStorage.removeItem('klani_token'); location.reload(); }
 
-    const MIN_AKCIO_SZAM = 8, SZERVEZO_CEL = 8, DARAS_AKCIO_SZAM = 16;
+    const MIN_AKCIO_SZAM = 8, SZERVEZO_CEL = 20, DARAS_AKCIO_SZAM = 30;
 
     function frissitAktivitasMeter(p) {
         const resztvett = p.akcio_resztvett || 0, circle = document.getElementById('daras-circle'), text = document.getElementById('daras-text'), subtitle = document.getElementById('daras-subtitle');
