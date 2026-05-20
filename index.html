@@ -582,7 +582,10 @@
                         <button class="btn btn-warn" style="width:100%" onclick="kiosztWarn()">Figyelmeztetés Rögzítése</button>
                     </div>
                     <div class="card" style="padding:0;overflow:hidden">
-                        <h3 style="padding:1.5rem; margin:0; border-bottom: 1px solid var(--border);">Kiosztott Warnok</h3>
+                        <div style="padding:1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                            <h3 style="margin:0;">Kiosztott Warnok</h3>
+                            <input type="text" id="warn-kereso" placeholder="Keresés név, kiosztó vagy indok alapján..." style="margin:0; width:auto; flex:1; max-width:350px; background:var(--surface-light); border-radius:99px; padding:10px 20px;" oninput="szuresWarnok(this.value)">
+                        </div>
                         <div class="table-wrapper" style="padding: 1rem;">
                             <table>
                                 <thead><tr><th>Dátum</th><th>Tag</th><th>Kiosztó</th><th>Lejárat</th><th>Állapot</th><th>Művelet</th></tr></thead>
@@ -922,7 +925,10 @@
         if (b) { document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active-nav')); b.classList.add('active-nav'); }
         if (i === 'profil-section') fetchProfil();
         if (i === 'akcio-section') fetchAkciok();
-        if (i === 'leaderboard-section') renderLeaderboard();
+        if (i === 'leaderboard-section') {
+            document.getElementById('leaderboard-lista').innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Frissítés folyamatban...</td></tr>';
+            fetchTagok().then(() => renderLeaderboard());
+        }
         if (i === 'warn-section') fetchWarnList();
         if (i === 'leadando-section') fetchLeadando();
         if (i === 'kervenyek-section') fetchKervenyek();
@@ -1204,7 +1210,19 @@
     }
 
     async function fetchWarnList() {
-        if (!myPermissions.jog_warn) return; const r = await apiFetch('/api/warn'); const w = await r.json();
+        if (!myPermissions.jog_warn) return; 
+        const r = await apiFetch('/api/warn'); 
+        window.GLOBAL_WARNOK = await r.json();
+        
+        const kereso = document.getElementById('warn-kereso');
+        if (kereso && kereso.value) {
+            szuresWarnok(kereso.value);
+        } else {
+            renderWarnok(window.GLOBAL_WARNOK);
+        }
+    }
+
+    function renderWarnok(w) {
         const tb = document.getElementById('warn-lista'); if (!tb) return; tb.innerHTML = '';
         w.forEach(x => {
             const iA = x.aktiv && (!x.lejaret || new Date(x.lejaret) > new Date());
@@ -1213,6 +1231,24 @@
             const tT = ALL_TAGOK.find(y => y.id === x.tag_id);
             tb.innerHTML += `<tr><td style="color:var(--text-muted); font-size:0.9rem;">${new Date(x.datum).toLocaleDateString()}</td><td><strong>${tT ? (tT.ic_nev || tT.nev) : 'Törölt Tag'}</strong><div style="color:var(--text-muted); font-size:0.8rem; margin-top:4px;">Indok: <em>${x.indok}</em></div></td><td style="color:var(--text-muted);">${x.szervezo_nev}</td><td>${x.lejaret ? new Date(x.lejaret).toLocaleDateString() : 'Végleges'}</td><td>${iA ? '<span class="badge badge-active">AKTÍV</span>' : '<span class="badge badge-expired">LEJÁRT</span>'}</td><td>${m}</td></tr>`;
         });
+    }
+
+    function szuresWarnok(v) {
+        const vl = v.toLowerCase(); 
+        if (!window.GLOBAL_WARNOK) return;
+        if (!vl) { 
+            renderWarnok(window.GLOBAL_WARNOK); 
+            return; 
+        }
+        
+        renderWarnok(window.GLOBAL_WARNOK.filter(x => {
+            const tT = ALL_TAGOK.find(y => y.id === x.tag_id);
+            const tagNev = tT ? (tT.ic_nev || tT.nev).toLowerCase() : 'törölt tag';
+            const szervezoNev = (x.szervezo_nev || '').toLowerCase();
+            const indok = (x.indok || '').toLowerCase();
+            
+            return tagNev.includes(vl) || szervezoNev.includes(vl) || indok.includes(vl);
+        }));
     }
 
     async function kiosztWarn() {
@@ -1292,7 +1328,7 @@
                     </div>
                 </div>
                 <div id="sajat-warns" style="margin-bottom:25px;"></div>
-                <h3 style="margin-top:0; font-size:1rem;">Profilkép Link (Csak Imgur)</h3>
+                <h3 style="margin-top:0; font-size:1rem;">Profilkép Link (Csak imgur képcím)</h3>
                 <input type="text" id="input-profilkep" placeholder="https://i.imgur.com/abcdefg.png" value="${p.profilkep || ''}">
                 <h3 style="margin-top:15px; font-size:1rem;">Bemutatkozás / Jegyzet</h3>
                 <textarea id="input-bemutatkozas" rows="4" placeholder="Írj magadról...">${p.bemutatkozas || ''}</textarea>
@@ -1771,6 +1807,16 @@ function switchLeaderboard(type) {
                     if (!document.querySelector('.akcio-details[style*="display: block"]')) {
                         const k = document.getElementById('akcio-kereso'); renderAkciok(ALL_AKCIOK.filter(x => !k || !k.value || (x.szervezo_nev || '').toLowerCase().includes(k.value.toLowerCase())), false);
                     }
+                }
+            }).catch(e => {});
+        }
+        if (document.getElementById('leaderboard-section').classList.contains('active')) {
+            fetch(API_BASE_URL + '/api/tagok', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
+            .then(r => r.ok ? r.json() : null)
+            .then(ujTagok => {
+                if (ujTagok && JSON.stringify(ALL_TAGOK) !== JSON.stringify(ujTagok)) {
+                    ALL_TAGOK = ujTagok;
+                    renderLeaderboard();
                 }
             }).catch(e => {});
         }
