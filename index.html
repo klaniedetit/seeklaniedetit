@@ -838,7 +838,23 @@
     </div>
     
 <script>
-    const API_BASE_URL = 'https://ked-app.onrender.com'; 
+    const API_BASE_URL = 'https://ked-app.onrender.com';
+    const ADMIN_ICON_URL = 'https://i.imgur.com/cpBQZE5.png';
+
+    function formatRangIdo(datumString) {
+    if (!datumString) return 'Nincs adat';
+    const modositva = new Date(datumString);
+    const most = new Date();
+    const kulonbsegMs = most - modositva;
+    const napok = Math.floor(kulonbsegMs / (1000 * 60 * 60 * 24));
+    const szepDatum = modositva.toLocaleDateString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    
+    if (napok <= 0) {
+        return `${szepDatum} (ma)`;
+    } else {
+        return `${szepDatum} (${napok} napja)`;
+    }
+}
 
     let myUserId, myUserName, myUserRang, myPermissions, editTargetId = null, ALL_RANGS = [], ALL_TAGOK = [], ALL_AKCIOK = [];
     let activeIntervalId = null;
@@ -1275,10 +1291,30 @@
         let modalAvatar = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
         
         if (a) { 
-            document.getElementById('modal-ic').innerText = a.ic_nev || '-'; 
+            let adminBadge = a.szerver_admin ? `<img src="${ADMIN_ICON_URL}" alt="Admin" style="width:20px; height:20px; margin-left:8px; vertical-align:middle;" title="V4 Admin">` : '';
+            document.getElementById('modal-ic').innerHTML = (a.ic_nev || '-') + adminBadge; 
+            
             document.getElementById('modal-user').innerText = '@' + a.nev; 
             document.getElementById('modal-rang').innerText = a.rang; 
             document.getElementById('modal-discord').innerText = a.discord || '-'; 
+            const discordIdIdo = document.getElementById('modal-rang-ido-sor');
+            if (!discordIdIdo) {
+                const discordParagraph = document.getElementById('modal-discord').closest('p');
+                if (discordParagraph) {
+                    const ujSor = document.createElement('p');
+                    ujSor.id = 'modal-rang-ido-sor';
+                    ujSor.style.color = 'var(--text-muted)';
+                    ujSor.style.marginBottom = '10px';
+                    ujSor.style.fontSize = '0.9rem';
+                    ujSor.innerHTML = `Rang utoljára módosítva: <span id="modal-rang-ido-ertek" style="color:var(--accent); font-weight:600;">-</span>`;
+                    discordParagraph.parentNode.insertBefore(ujSor, discordParagraph);
+                }
+            }
+            const idoElem = document.getElementById('modal-rang-ido-ertek');
+            if (idoElem) {
+                idoElem.innerText = formatRangIdo(a.rang_frissitve);
+            }
+
             if (a.profilkep) {
                 modalAvatar = `<img src="${a.profilkep}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;">`;
             }
@@ -1304,15 +1340,20 @@
             if (hDiv) hDiv.innerHTML = `<img src="${p.profilkep}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;">`;
         }
 
+        let adminBadge = p.szerver_admin ? `<img src="${ADMIN_ICON_URL}" alt="Admin" style="width:24px; height:24px; margin-left:10px; vertical-align:middle;" title="V4 Admin">` : '';
+
         let h = `<div class="card" style="padding:0; overflow:hidden;">
             <div style="padding: 2.5rem 2rem; background: linear-gradient(to bottom, rgba(59, 130, 246, 0.1), transparent);">
                 <div style="display:flex; align-items:center; gap:20px;">
                     <div style="width:80px; height:80px; border-radius:50%; background:var(--surface-light); display:flex; align-items:center; justify-content:center; color:var(--text-muted); border:1px solid var(--border); overflow: hidden;">${avatarHtml}</div>
-                    <div><h2 style="margin: 0 0 5px 0; font-size:1.8rem;">${p.ic_nev || '-'}</h2><p style="margin:0; color:var(--text-muted);">@${p.nev} <span class="role-badge" style="margin-left:10px;">${p.rang}</span></p></div>
+                    <div><h2 style="margin: 0 0 5px 0; font-size:1.8rem; display:flex; align-items:center;">${p.ic_nev || '-'}${adminBadge}</h2><p style="margin:0; color:var(--text-muted);">@${p.nev} <span class="role-badge" style="margin-left:10px;">${p.rang}</span></p></div>
                 </div>
             </div>
             <div style="padding: 2rem;">
-                <p style="color:var(--text-muted); margin-bottom:20px;">Discord: <span style="color:var(--text);">${p.discord || '-'}</span></p>
+                <p style="color:var(--text-muted); margin-bottom:10px;">Discord: <span style="color:var(--text);">${p.discord || '-'}</span></p>
+                
+                <p style="color:var(--text-muted); margin-bottom:20px; font-size:0.9rem;">Rang utoljára módosítva: <span style="color:var(--accent); font-weight:600;">${formatRangIdo(p.rang_frissitve)}</span></p>
+                
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:15px; margin-bottom: 30px;">
                     <div style="background:var(--surface-light); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid var(--border);">
                         <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-muted);">Összes Szervezett</p><span style="font-size:1.8rem; font-weight:700;">${p.akcio_szervezett || 0}</span>
@@ -1340,7 +1381,7 @@
         </div>`;
         const ps = document.getElementById('profil-section'); if (ps) { ps.innerHTML = h; renderWarnokProfilon('sajat-warns', p.warnings); }
         frissitAktivitasMeter(p);
-    }
+        }
 
     async function mentesProfil() { 
         const pLink = document.getElementById('input-profilkep').value.trim();
@@ -1553,10 +1594,11 @@
             let tagAvatar = x.profilkep
                 ? `<img src="${x.profilkep}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;">`
                 : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+            let adminBadge = x.szerver_admin ? `<img src="${ADMIN_ICON_URL}" alt="Admin" style="width:18px; height:18px; margin-left:6px; vertical-align:middle;" title="V4 Admin">` : '';
 
             let m = `<button class="btn" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="megtekintProfil(${x.id})">Profil</button>`;
             if (myPermissions.nev_valtoztat) { m += ` <button class="btn" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="nyitTagSzerkesztes(${x.id},'${x.nev}','${x.ic_nev}','${x.discord}','${x.rang}')">Szerkesztés</button> <button class="btn btn-danger" style="padding:0.4rem 1rem; font-size:0.8rem;" onclick="tagTorles(${x.id})">Törlés</button>`; }
-            tb.innerHTML += `<tr><td><div style="display:flex; align-items:center; gap:15px;"><div style="width:36px; height:36px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; color:var(--text-muted); overflow: hidden;">${tagAvatar}</div><div><div style="font-weight:600;">${x.ic_nev || '-'}${x.aktiv_warn_count > 0 ? `<div style="width:20px; height:20px; background:var(--warn); color:#000; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:bold; margin-left:8px;">${x.aktiv_warn_count}</div>` : ''}</div><div style="color:var(--text-muted); font-size:0.8rem;">@${x.nev}</div></div></div></td><td><span class="role-badge">${x.rang}</span></td><td>${m}</td></tr>`;
+            tb.innerHTML += `<tr><td><div style="display:flex; align-items:center; gap:15px;"><div style="width:36px; height:36px; border-radius:50%; background:var(--surface-hover); display:flex; align-items:center; justify-content:center; color:var(--text-muted); overflow: hidden;">${tagAvatar}</div><div><div style="font-weight:600; display:flex; align-items:center;">${x.ic_nev || '-'}${adminBadge}${x.aktiv_warn_count > 0 ? `<div style="width:20px; height:20px; background:var(--warn); color:#000; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:bold; margin-left:8px;">${x.aktiv_warn_count}</div>` : ''}</div><div style="color:var(--text-muted); font-size:0.8rem;">@${x.nev}</div></div></div></td><td><span class="role-badge">${x.rang}</span></td><td>${m}</td></tr>`;
         });
     }
 
@@ -1755,6 +1797,7 @@ function switchLeaderboard(type) {
                 : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
 
             let darabszam = aktualisTopTipus === 'resztvett' ? (x.akcio_resztvett || 0) : (x.akcio_szervezett || 0);
+            let adminBadge = x.szerver_admin ? `<img src="${ADMIN_ICON_URL}" alt="Admin" style="width:16px; height:16px; margin-left:6px; vertical-align:middle;" title="V4 Admin">` : '';
 
             tb.innerHTML += `
                 <tr>
@@ -1765,7 +1808,7 @@ function switchLeaderboard(type) {
                                 ${tagAvatar}
                             </div>
                             <div>
-                                <div style="font-weight:600; color:var(--text);">${x.ic_nev || '-'}</div>
+                                <div style="font-weight:600; color:var(--text); display:flex; align-items:center;">${x.ic_nev || '-'}${adminBadge}</div>
                                 <div style="color:var(--text-muted); font-size:0.8rem;">@${x.nev}</div>
                             </div>
                         </div>

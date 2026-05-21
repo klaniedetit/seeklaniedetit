@@ -179,8 +179,6 @@ app.all('*any', async (req, res) => {
             const parts = path.split('/');
             const id = parts[3];
             const action = parts[4];
-            
-            // A kommentek fogadása
             if (method === 'POST' && action === 'komment') {
                 const { szoveg } = req.body;
                 if (!szoveg) return res.status(400).json({ error: 'Üres üzenet!' });
