@@ -121,10 +121,25 @@ app.all('*any', async (req, res) => {
             }
             if (method === 'POST') {
                 const { osszeg, bizonyitek } = req.body;
-                if (!osszeg || isNaN(osszeg)) return res.status(400).json({error: 'Érvénytelen összeg!'});
-                await supabase.from('kassza_log').insert([{ tipus: 'be', osszeg: parseInt(osszeg), operator: user.ic_nev || user.nev, bizonyitek: bizonyitek || 'Heti Leadandó' }]);
-                const { data: t } = await supabase.from('tagok').select('heti_leadva').eq('id', user.id).single();
-                await supabase.from('tagok').update({ heti_leadva: (t.heti_leadva || 0) + parseInt(osszeg) }).eq('id', user.id);
+                const befizetendo = parseInt(osszeg);
+                if (!osszeg || isNaN(befizetendo) || befizetendo <= 0) return res.status(400).json({error: 'Érvénytelen összeg!'});
+                const { data: t } = await supabase.from('tagok').select('heti_leadva, rang').eq('id', user.id).single();
+                const { data: rData } = await supabase.from('jogosultsagok').select('leadando').eq('rang', t.rang).single();
+                const kotelezo = rData ? (rData.leadando || 0) : 0;
+                const eddigLeadva = t.heti_leadva || 0;
+                const hatralevo = kotelezo - eddigLeadva;
+                if (kotelezo === 0) {
+                    return res.status(400).json({error: 'Nincs kötelező leadandód, így nem fizethetsz be a leadandó fülről!'});
+                }
+                if (hatralevo <= 0) {
+                    return res.status(400).json({error: 'Már teljesítetted a heti leadandót, nem kell többet befizetned!'});
+                }
+                if (befizetendo > hatralevo) {
+                    return res.status(400).json({error: `Már csak ${hatralevo.toLocaleString()} $ hiányzik a heti köteleződből. Ennél többet nem rakhatsz be!`});
+                }
+                await supabase.from('kassza_log').insert([{ tipus: 'be', osszeg: befizetendo, operator: user.ic_nev || user.nev, bizonyitek: bizonyitek || 'Heti Leadandó', forras: 'leadando' }]);
+                await supabase.from('tagok').update({ heti_leadva: eddigLeadva + befizetendo }).eq('id', user.id);
+                
                 return res.json({ success: true });
             }
         }
@@ -373,7 +388,7 @@ app.all('*any', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Szerver elindítása a Render által kiosztott dinamikus porton
+// Szerver elindítása
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`A Klani E Detit HQ szerver sikeresen elindult a ${PORT}-es porton!`);

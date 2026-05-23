@@ -1288,6 +1288,9 @@
 
     async function megtekintProfil(id) {
         const a = ALL_TAGOK.find(x => x.id === id);
+        const isAdmin = myPermissions.jog_admin || myUserRang === 'DEV';
+        document.getElementById('modal-14-szervezett').parentElement.style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('modal-14-resztvett').parentElement.style.display = isAdmin ? 'block' : 'none';
         let modalAvatar = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 50%; height: 50%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
         
         if (a) { 
@@ -1341,6 +1344,13 @@
         }
 
         let adminBadge = p.szerver_admin ? `<img src="${ADMIN_ICON_URL}" alt="Admin" style="width:24px; height:24px; margin-left:10px; vertical-align:middle;" title="V4 Admin">` : '';
+        let hetiStatisztikaHtml = (myPermissions.jog_admin || myUserRang === 'DEV') ? `
+            <div style="background:rgba(245, 158, 11, 0.05); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid rgba(245, 158, 11, 0.2);">
+                <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--warn);">14 Napos Szervezett</p><span style="font-size:1.8rem; font-weight:700; color:var(--warn);">${p.heti2_szervezett || 0}</span>
+            </div>
+            <div style="background:rgba(245, 158, 11, 0.05); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid rgba(245, 158, 11, 0.2);">
+                <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--warn);">14 Napos Résztvett</p><span style="font-size:1.8rem; font-weight:700; color:var(--warn);">${p.heti2_resztvett || 0}</span>
+            </div>` : '';
 
         let h = `<div class="card" style="padding:0; overflow:hidden;">
             <div style="padding: 2.5rem 2rem; background: linear-gradient(to bottom, rgba(59, 130, 246, 0.1), transparent);">
@@ -1361,12 +1371,7 @@
                     <div style="background:var(--surface-light); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid var(--border);">
                         <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--text-muted);">Összes Résztvett</p><span style="font-size:1.8rem; font-weight:700;">${p.akcio_resztvett || 0}</span>
                     </div>
-                    <div style="background:rgba(245, 158, 11, 0.05); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid rgba(245, 158, 11, 0.2);">
-                        <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--warn);">14 Napos Szervezett</p><span style="font-size:1.8rem; font-weight:700; color:var(--warn);">${p.heti2_szervezett || 0}</span>
-                    </div>
-                    <div style="background:rgba(245, 158, 11, 0.05); border-radius:var(--radius-sm); padding:1.2rem; border:1px solid rgba(245, 158, 11, 0.2);">
-                        <p style="margin:0 0 5px 0; font-size:0.85rem; color:var(--warn);">14 Napos Résztvett</p><span style="font-size:1.8rem; font-weight:700; color:var(--warn);">${p.heti2_resztvett || 0}</span>
-                    </div>
+                    ${hetiStatisztikaHtml}
                 </div>
                 <div id="sajat-warns" style="margin-bottom:25px;"></div>
                 <h3 style="margin-top:0; font-size:1rem;">Profilkép Link (Csak imgur képcím)</h3>
@@ -1381,7 +1386,7 @@
         </div>`;
         const ps = document.getElementById('profil-section'); if (ps) { ps.innerHTML = h; renderWarnokProfilon('sajat-warns', p.warnings); }
         frissitAktivitasMeter(p);
-        }
+    }
 
     async function mentesProfil() { 
         const pLink = document.getElementById('input-profilkep').value.trim();
@@ -1663,7 +1668,11 @@
         const r = await apiFetch('/api/kassza'); if (!r) return; const d = await r.json();
         document.getElementById('balanceDisplay').innerText = d.balance.toLocaleString() + ' $'; const tb = document.getElementById('kassza-log-lista'); if (!tb) return; tb.innerHTML = '';
         d.logs.forEach(x => {
-            tb.innerHTML += `<tr><td style="color:var(--text-muted); font-size:0.9rem;">${new Date(x.datum).toLocaleDateString()}</td><td><strong>${x.operator}</strong></td><td><span class="role-badge" style="color:${x.tipus === 'be' ? 'var(--success)' : 'var(--danger)'};">${x.tipus === 'be' ? 'Befizetés' : 'Kivétel'}</span></td><td style="font-weight:600;">${x.osszeg.toLocaleString()} $</td><td>${x.bizonyitek?.startsWith('http') ? `<a href="${x.bizonyitek}" target="_blank" style="color:var(--accent); text-decoration:none;">Megtekintés ↗</a>` : (x.bizonyitek || '-')}</td></tr>`;
+            const buborek = x.forras === 'leadando' 
+                ? `<span style="background: rgba(59, 130, 246, 0.15); color: var(--accent); padding: 3px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 700; margin-left: 8px; vertical-align: middle; border: 1px solid rgba(59, 130, 246, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">Leadandó</span>` 
+                : '';
+
+            tb.innerHTML += `<tr><td style="color:var(--text-muted); font-size:0.9rem;">${new Date(x.datum).toLocaleDateString()}</td><td><strong>${x.operator}</strong>${buborek}</td><td><span class="role-badge" style="color:${x.tipus === 'be' ? 'var(--success)' : 'var(--danger)'};">${x.tipus === 'be' ? 'Befizetés' : 'Kivétel'}</span></td><td style="font-weight:600;">${x.osszeg.toLocaleString()} $</td><td>${x.bizonyitek?.startsWith('http') ? `<a href="${x.bizonyitek}" target="_blank" style="color:var(--accent); text-decoration:none;">Megtekintés ↗</a>` : (x.bizonyitek || '-')}</td></tr>`;
         });
     }
 
