@@ -9,11 +9,12 @@
 
         :root {
             --bg: #000000;
-            --surface: #131315;
-            --surface-light: #1c1c1f;
-            --surface-hover: #27272a;
-            --border: #27272a;
-            --text: #f4f4f5;
+            --surface: rgba(24, 24, 27, 0.6);
+            --surface-light: rgba(39, 39, 42, 0.4);
+            --surface-hover: rgba(63, 63, 70, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.15);
+            --text: #ffffff;
             --text-muted: #a1a1aa;
             --accent: #3b82f6;
             --accent-hover: #2563eb;
@@ -31,10 +32,32 @@
             margin: 0;
             height: 100vh;
             overflow: hidden; 
-            background: linear-gradient(45deg, #000000, #0f172a, #000000, #050a15);
-            background-size: 400% 400%;
-            animation: gradientDrift 20s ease infinite alternate;
+            background: #000000;
             color-scheme: dark;
+            position: relative;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.9) 0%, rgba(0, 0, 0, 1) 60%);
+            z-index: -100;
+            animation: smoothGlow 15s ease-in-out infinite alternate;
+            will-change: transform, opacity; 
+        }
+
+        @keyframes smoothGlow {
+            0% { 
+                transform: scale(1) translate(0%, 0%); 
+                opacity: 0.4; 
+            }
+            100% { 
+                transform: scale(1.15) translate(3%, 3%); 
+                opacity: 1; 
+            }
         }
 
         @keyframes gradientDrift {
@@ -50,7 +73,7 @@
 
         .sidebar {
             width: 260px;
-            background: rgba(19, 19, 21, 0.95);
+            background: rgba(9, 9, 11, 0.85);
             backdrop-filter: blur(20px);
             border-right: 1px solid var(--border);
             display: flex;
@@ -99,7 +122,7 @@
         }
 
         header {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(20px);
             padding: 1.2rem 2rem;
             border-bottom: 1px solid var(--border);
@@ -127,19 +150,18 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .nav-btn:hover {
             color: var(--text);
-            background: var(--surface-light);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border);
             transform: translateX(5px);
         }
-
         .nav-btn.active-nav {
             color: #fff;
-            background: var(--accent);
-            border-color: var(--accent);
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border: none;
             transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
         }
 
         @keyframes pulseKOZOS {
@@ -217,11 +239,13 @@
         }
 
         .card {
-            background: var(--surface);
+            background: linear-gradient(145deg, rgba(39, 39, 42, 0.4), rgba(24, 24, 27, 0.7));
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 2rem;
             margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
         }
 
         .auth-card {
@@ -298,9 +322,9 @@
         }
 
         .btn {
-            background: var(--surface-light);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text);
-            border: none;
+            border: 1px solid var(--border);
             border-radius: 99px;
             padding: 0.7rem 1.5rem;
             font-weight: 500;
@@ -309,14 +333,22 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
-        .btn:hover { background: var(--surface-hover); transform: translateY(-1px); }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: white; }
-        .btn-primary { background: var(--accent) !important; color: white !important; }
-        .btn-warn { background: rgba(245, 158, 11, 0.1); color: var(--warn); }
-        .btn-warn:hover { background: var(--warn); color: white; }
+        .btn:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-color: var(--border-highlight);
+            transform: translateY(-1px); 
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
+        .btn-danger:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-hover)) !important; color: white !important; border: none !important; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4) !important; }
+        .btn-primary:hover { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6) !important; transform: translateY(-2px); }
+        
+        .btn-warn { background: rgba(245, 158, 11, 0.1); color: var(--warn); border-color: rgba(245, 158, 11, 0.2); }
+        .btn-warn:hover { background: var(--warn); color: white; border-color: var(--warn); }
 
         .aktivitas-card {
             background: var(--surface);
@@ -336,18 +368,32 @@
             width: 100%;
             padding: 1rem 1.2rem;
             margin-bottom: 1.2rem;
-            background: var(--surface-light);
+            background: rgba(0, 0, 0, 0.4);
             color: var(--text);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             box-sizing: border-box;
             outline: 0;
             font-family: inherit;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s var(--ease);
+        }
+        input:focus, textarea:focus, select:focus {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        th { text-align: left; padding: 1rem 1.2rem; color: var(--text-muted); font-weight: 500; font-size: 0.85rem; position: sticky; top: 0; background: rgba(9, 9, 11, 0.95); z-index: 10; border-bottom: 1px solid var(--border); }
+        td { padding: 1.2rem; background: rgba(24, 24, 27, 0.4); transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        tr:hover td { background: rgba(39, 39, 42, 0.6); }
+
         @keyframes smoothRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes rgbGlowPulse { 0% { filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6)); } 50% { filter: drop-shadow(0 0 25px rgba(52, 211, 153, 0.8)); } 100% { filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.6)); } }
-        
+        @keyframes rgbGlowPulse { 
+            0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.6); } 
+            50% { box-shadow: 0 0 25px rgba(52, 211, 153, 0.8); } 
+            100% { box-shadow: 0 0 10px rgba(168, 85, 247, 0.6); } 
+        }    
         .progress-circle.daras-anim { background: transparent !important; }
         .progress-circle.daras-anim::before {
             content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%;
@@ -390,8 +436,25 @@
         .home-main { flex: 1; min-width: 0; }
         .home-sidebar { width: 320px; flex-shrink: 0; position: sticky; top: 100px; }
         
-        .akcio-compact { padding: 1.2rem !important; margin-bottom: 12px !important; cursor: pointer; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
-        .akcio-compact:hover { background: var(--surface-light); border-color: #333; }
+        .akcio-compact { 
+            padding: 1.2rem !important; 
+            margin-bottom: 12px !important; 
+            cursor: pointer; 
+            border-radius: var(--radius-sm); 
+            background: linear-gradient(145deg, rgba(39, 39, 42, 0.3), rgba(24, 24, 27, 0.6));
+            border: 1px solid var(--border); 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.2s var(--ease);
+        }
+        .akcio-compact:hover { 
+            background: linear-gradient(145deg, rgba(39, 39, 42, 0.5), rgba(24, 24, 27, 0.8));
+            border-color: var(--border-highlight); 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
         .akcio-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--surface-light); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--accent); flex-shrink: 0; font-size: 1.2rem; }
         .tooltip { position: relative; display: inline-block; cursor: help; margin-left: 8px; }
         .tooltip .tooltiptext { visibility: hidden; width: 220px; background-color: var(--surface-light); color: var(--text); text-align: center; border-radius: var(--radius-sm); padding: 12px; position: absolute; z-index: 1000; bottom: 150%; left: 50%; margin-left: -110px; opacity: 0; transition: opacity 0.2s; border: 1px solid var(--border); font-size: 0.85rem; font-weight: normal; }
@@ -1942,16 +2005,24 @@ function switchLeaderboard(type) {
                 </tr>`;
         });
     }
+    let LAST_VEHICLES = null;
     async function loadVehicles() {
-        try {
-            const grid = document.getElementById('vehicles-grid');
+    try {
+        const grid = document.getElementById('vehicles-grid');
+        if (!LAST_VEHICLES) {
             grid.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1 / -1; padding: 20px;">Betöltés folyamatban...</div>';
+        }
 
-            const response = await apiFetch('/api/vehicles'); 
-            if (!response) return; 
-            
-            const vehicles = await response.json();
-            grid.innerHTML = '';
+        const response = await apiFetch('/api/vehicles'); 
+        if (!response) return; 
+        
+        const vehicles = await response.json();
+        if (LAST_VEHICLES && JSON.stringify(LAST_VEHICLES) === JSON.stringify(vehicles)) {
+            return; 
+        }
+
+        LAST_VEHICLES = vehicles;
+        grid.innerHTML = '';
 
             if(vehicles.length === 0) {
                 grid.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1 / -1; padding: 20px; background:var(--surface-light); border-radius:var(--radius-sm); border:1px dashed var(--border);">Nincs elérhető jármű a rendszerben.</div>';
@@ -1960,68 +2031,81 @@ function switchLeaderboard(type) {
             let myActiveVehicle = null;
 
             vehicles.forEach(vehicle => {
-                if (vehicle.hasznalo_id === myUserId && vehicle.allapot === 'hasznalatban') {
-                    myActiveVehicle = vehicle;
-                }
+            if (vehicle.hasznalo_id === myUserId && vehicle.allapot === 'hasznalatban') {
+                myActiveVehicle = vehicle;
+            }
 
-                let statusBadge = '';
-                let actionHtml = '';
-                if (vehicle.allapot === 'szabad') {
-                    statusBadge = '<span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--success); font-size:0.7rem;">Szabad</span>';
-                    actionHtml = `<button class="btn btn-primary" style="width:100%; margin-top:15px; padding:0.8rem; font-size:0.85rem;" onclick="requestVehicle(${vehicle.id})">Igénylés</button>`;
-                
-                } else if (vehicle.allapot === 'igenyles_alatt') {
-                    statusBadge = '<span class="badge" style="background:rgba(168, 85, 247, 0.15); color:#a855f7; font-size:0.7rem;">Függőben</span>';
-                    actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(0,0,0,0.2); border:1px dashed #a855f7; border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:#a855f7;">${vehicle.hasznalo_nev} igénylése elfogadásra vár</div>`;
-                
-                } else if (vehicle.allapot === 'hasznalatban') {
-                    statusBadge = '<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--warn); font-size:0.7rem;">Használatban</span>';
-                    actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--text-muted);">Nála: <strong style="color:var(--text);">${vehicle.hasznalo_nev || 'Ismeretlen'}</strong></div>`;
-                
-                } else if (vehicle.allapot === 'ellenorzes_alatt') {
-                    statusBadge = '<span class="badge" style="background:rgba(59, 130, 246, 0.15); color:var(--accent); font-size:0.7rem;">Ellenőrzés alatt</span>';
-                    actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(0,0,0,0.2); border:1px dashed var(--accent); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--accent);">Letétel jóváhagyásra vár</div>`;
-                }
-                let iconSvg = vehicle.tipus.toLowerCase().includes('heli') 
-                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.478 2.404a.75.75 0 00-.926.941l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.404z"/></svg>`
-                    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.32 8.44A2.001 2.001 0 015.07 7h13.86c.86 0 1.62.55 1.88 1.37l1.73 5.48c.32 1.01.46 2.06.46 3.15v2a2 2 0 01-2 2h-1a2 2 0 01-2-2v-1H5v1a2 2 0 01-2 2H2a2 2 0 01-2-2v-2c0-1.09.14-2.14.46-3.15l1.73-5.48zM5.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm13 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM5.89 9l-.63 2h13.48l-.63-2H5.89z"/></svg>`;
+            let statusBadge = '';
+            let actionHtml = '';
+            let cardBorder = 'border: 1px solid rgba(255, 255, 255, 0.08);'; // Világosabb, élesebb szegély
+            let iconGlow = '';
 
-                let adminControls = '';
-                if (myPermissions && (myPermissions.jog_jarmu || myUserRang === 'DEV')) {
-                    adminControls = `
-                        <div style="display:flex; gap:5px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); flex-wrap:wrap;">
-                            <button class="btn" style="flex:1; padding:0.4rem; font-size:0.75rem; background:transparent; border:1px solid var(--border); color:var(--text-muted);" onclick="openVehicleHistory(${vehicle.id}, '${vehicle.rendszam}')">Előzmény</button>
-                            <button class="btn" style="flex:1; padding:0.4rem; font-size:0.75rem; background:transparent; border:1px solid var(--border); color:var(--text-muted);" onclick="editVehicle(${vehicle.id}, '${vehicle.tipus}', '${vehicle.rendszam}', '${vehicle.alvazszam || '-'}')">Szerkesztés</button>
-                            <button class="btn btn-danger" style="flex:1; padding:0.4rem; font-size:0.75rem;" onclick="deleteVehicle(${vehicle.id})">Törlés</button>
-                        </div>
-                    `;
-                }
+            // Állapotfüggő színek és dizájn
+            if (vehicle.allapot === 'szabad') {
+                statusBadge = '<span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--success); font-size:0.75rem; border: 1px solid rgba(16, 185, 129, 0.3);">Szabad</span>';
+                actionHtml = `<button class="btn btn-primary" style="width:100%; margin-top:15px; padding:0.8rem; font-size:0.85rem; font-weight:600; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);" onclick="requestVehicle(${vehicle.id})">Igénylés</button>`;
+                iconGlow = 'color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);';
+            
+            } else if (vehicle.allapot === 'igenyles_alatt') {
+                statusBadge = '<span class="badge" style="background:rgba(168, 85, 247, 0.15); color:#c084fc; font-size:0.75rem; border: 1px solid rgba(168, 85, 247, 0.3);">Függőben</span>';
+                actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168, 85, 247, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:#c084fc;"><strong>${vehicle.hasznalo_nev}</strong> igénylése elfogadásra vár</div>`;
+                iconGlow = 'color: #c084fc; background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.2);';
+            
+            } else if (vehicle.allapot === 'hasznalatban') {
+                statusBadge = '<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--warn); font-size:0.75rem; border: 1px solid rgba(245, 158, 11, 0.3);">Használatban</span>';
+                actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--text-muted);">Nála: <strong style="color:var(--warn);">${vehicle.hasznalo_nev || 'Ismeretlen'}</strong></div>`;
+                iconGlow = 'color: var(--warn); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2);';
+                cardBorder = 'border: 1px solid rgba(245, 158, 11, 0.25);'; // Kiemeli a kártyát, ha használatban van
+            
+            } else if (vehicle.allapot === 'ellenorzes_alatt') {
+                statusBadge = '<span class="badge" style="background:rgba(59, 130, 246, 0.15); color:var(--accent); font-size:0.75rem; border: 1px solid rgba(59, 130, 246, 0.3);">Ellenőrzés alatt</span>';
+                actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--accent);">Letétel jóváhagyásra vár</div>`;
+                iconGlow = 'color: var(--accent); background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);';
+            }
 
-                grid.innerHTML += `
-                    <div style="background:var(--surface-light); border:1px solid var(--border); border-radius:var(--radius-sm); padding:1.5rem; display:flex; flex-direction:column; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div style="width:40px; height:40px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; color:var(--text-muted); border:1px solid var(--border);">
-                                ${iconSvg}
-                            </div>
-                            ${statusBadge}
-                        </div>
-                        <h3 style="margin:15px 0 8px 0; font-size:1.1rem;">${vehicle.tipus}</h3>
-                        
-                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 10px;">
-                            <div style="font-family:monospace; background:rgba(0,0,0,0.4); padding:4px 8px; border-radius:4px; font-size:0.85rem; color:var(--text-muted); border:1px solid var(--border); display:inline-block; letter-spacing:1px;">
-                                RSZ: <strong style="color:var(--text);">${vehicle.rendszam}</strong>
-                            </div>
-                            <div style="font-family:monospace; background:rgba(0,0,0,0.4); padding:4px 8px; border-radius:4px; font-size:0.85rem; color:var(--text-muted); border:1px solid var(--border); display:inline-block; letter-spacing:1px;">
-                                ALVÁZ: <strong style="color:var(--text);">${vehicle.alvazszam || '-'}</strong>
-                            </div>
-                        </div>
+            let iconSvg = vehicle.tipus.toLowerCase().includes('heli') 
+                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.478 2.404a.75.75 0 00-.926.941l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.404z"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.32 8.44A2.001 2.001 0 015.07 7h13.86c.86 0 1.62.55 1.88 1.37l1.73 5.48c.32 1.01.46 2.06.46 3.15v2a2 2 0 01-2 2h-1a2 2 0 01-2-2v-1H5v1a2 2 0 01-2 2H2a2 2 0 01-2-2v-2c0-1.09.14-2.14.46-3.15l1.73-5.48zM5.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm13 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM5.89 9l-.63 2h13.48l-.63-2H5.89z"/></svg>`;
 
-                        <div style="flex:1;"></div>
-                        ${actionHtml}
-                        ${adminControls}
+            let adminControls = '';
+            if (myPermissions && (myPermissions.jog_jarmu || myUserRang === 'DEV')) {
+                // Fejlettebb kinézetű admin gombok, világosabb körvonalakkal és háttérrel
+                adminControls = `
+                    <div style="display:flex; gap:8px; margin-top:10px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); flex-wrap:wrap;">
+                        <button class="btn" style="flex:1; padding:0.5rem; font-size:0.75rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text);" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="openVehicleHistory(${vehicle.id}, '${vehicle.rendszam}')">Előzmény</button>
+                        <button class="btn" style="flex:1; padding:0.5rem; font-size:0.75rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text);" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="editVehicle(${vehicle.id}, '${vehicle.tipus}', '${vehicle.rendszam}', '${vehicle.alvazszam || '-'}')">Szerkesztés</button>
+                        <button class="btn btn-danger" style="flex:1; padding:0.5rem; font-size:0.75rem; border:1px solid rgba(239, 68, 68, 0.3);" onclick="deleteVehicle(${vehicle.id})">Törlés</button>
                     </div>
                 `;
-            });
+            }
+
+            // Kártya renderelése gradienssel és kontrasztos elemekkel
+            grid.innerHTML += `
+                <div style="background: linear-gradient(145deg, rgba(39, 39, 42, 0.5), rgba(28, 28, 31, 0.8)); ${cardBorder} border-radius:var(--radius-sm); padding:1.5rem; display:flex; flex-direction:column; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; will-change: transform, box-shadow;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.6)'; this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none'; this.style.boxShadow='none'; this.style.borderColor='rgba(255,255,255,0.08)'">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div style="width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1); ${iconGlow || 'background:rgba(255,255,255,0.05); color:var(--text);'}">
+                            ${iconSvg}
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    
+                    <h3 style="margin:15px 0 10px 0; font-size:1.15rem; color:#fff; font-weight:600; letter-spacing:0.5px;">${vehicle.tipus}</h3>
+                    
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 12px;">
+                        <div style="background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:6px; font-size:0.8rem; color:var(--text-muted); border:1px solid rgba(255,255,255,0.05); display:inline-flex; align-items:center; letter-spacing:0.5px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+                            RSZ: <strong style="color:var(--text); margin-left:4px; font-family:monospace; font-size:0.9rem;">${vehicle.rendszam}</strong>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:6px; font-size:0.8rem; color:var(--text-muted); border:1px solid rgba(255,255,255,0.05); display:inline-flex; align-items:center; letter-spacing:0.5px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+                            ALVÁZ: <strong style="color:var(--text); margin-left:4px; font-family:monospace; font-size:0.9rem;">${vehicle.alvazszam || '-'}</strong>
+                        </div>
+                    </div>
+
+                    <div style="flex:1;"></div>
+                    ${actionHtml}
+                    ${adminControls}
+                </div>
+            `;
+        });
 
             //leadás doboz
             const returnSection = document.getElementById('vehicle-return-section');
@@ -2340,71 +2424,78 @@ function switchLeaderboard(type) {
         setTimeout(() => { t.classList.add('show'); }, 200); setTimeout(() => { t.classList.remove('show'); }, 4000);
     }
     function futtatFrissitest() {
-        if (!myUserId) return;
-        if (document.getElementById('hirek-section').classList.contains('active')) {
-            fetch(API_BASE_URL + '/api/hirek', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
-            .then(r => r.ok ? r.json() : null)
-            .then(ujHirek => {
-                if (ujHirek && JSON.stringify(window.GLOBAL_HIREK) !== JSON.stringify(ujHirek)) {
-                    window.GLOBAL_HIREK = ujHirek;
-                    if (document.activeElement !== document.getElementById('hir-cim') && document.activeElement !== document.getElementById('hir-tartalom')) {
-                        renderHirekLista(ujHirek);
-                    }
-                }
-            }).catch(e => {});
-        }
-        if (document.getElementById('akcio-section').classList.contains('active')) {
-            fetch(API_BASE_URL + '/api/akcio', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
-            .then(r => r.ok ? r.json() : null)
-            .then(ujAkciok => {
-                if (ujAkciok && JSON.stringify(ALL_AKCIOK) !== JSON.stringify(ujAkciok)) {
-                    ALL_AKCIOK = ujAkciok;
-                    const aG = document.getElementById('nav-akcio'); if (aG) { if (ALL_AKCIOK.filter(x => x.aktiv && !x.archivalva).length > 0) aG.classList.add('nav-btn-alert'); else aG.classList.remove('nav-btn-alert'); }
-                    if (!document.querySelector('.akcio-details[style*="display: block"]')) {
-                        const k = document.getElementById('akcio-kereso'); renderAkciok(ALL_AKCIOK.filter(x => !k || !k.value || (x.szervezo_nev || '').toLowerCase().includes(k.value.toLowerCase())), false);
-                    }
-                }
-            }).catch(e => {});
-        }
-        if (document.getElementById('leaderboard-section').classList.contains('active')) {
-            fetch(API_BASE_URL + '/api/tagok', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
-            .then(r => r.ok ? r.json() : null)
-            .then(ujTagok => {
-                if (ujTagok && JSON.stringify(ALL_TAGOK) !== JSON.stringify(ujTagok)) {
-                    ALL_TAGOK = ujTagok;
-                    renderLeaderboard();
-                }
-            }).catch(e => {});
-        }
-        fetch(API_BASE_URL + `/api/kervenyek${isAllKervenyekLoaded ? '?all=true' : ''}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
+    if (!myUserId) return;
+    
+    // 1. Hírek
+    if (document.getElementById('hirek-section').classList.contains('active')) {
+        fetch(API_BASE_URL + '/api/hirek', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
         .then(r => r.ok ? r.json() : null)
-        .then(ujKervenyek => {
-            if (ujKervenyek && JSON.stringify(window.GLOBAL_KERVENYEK) !== JSON.stringify(ujKervenyek)) {
-                window.GLOBAL_KERVENYEK = ujKervenyek;
-                
-                const modal = document.getElementById('kerveny-chat-modal');
-                if (modal && modal.style.display === 'flex' && aktivKervenyId) {
-                    const k = window.GLOBAL_KERVENYEK.find(x => x.id === aktivKervenyId); 
-                    if (k) {
-                        if (k.kommentek) localStorage.setItem('read_comments_' + k.id, k.kommentek.length);
-                        frissitKervenyChatDoboz(k);
-                    }
+        .then(ujHirek => {
+            if (ujHirek && JSON.stringify(window.GLOBAL_HIREK) !== JSON.stringify(ujHirek)) {
+                window.GLOBAL_HIREK = ujHirek;
+                if (document.activeElement !== document.getElementById('hir-cim') && document.activeElement !== document.getElementById('hir-tartalom')) {
+                    renderHirekLista(ujHirek);
                 }
-                
-                frissitKervenyErtesito(ujKervenyek);
-                if (document.getElementById('kervenyek-section').classList.contains('active')) { const k = document.getElementById('kerveny-kereso'); szuresKervenyek(k ? k.value : ''); }
             }
         }).catch(e => {});
     }
-    //Járművek frissítése
-    setInterval(() => {
-        if (document.getElementById('jarmuvek-section').classList.contains('active')) {
-            loadVehicles();
-            if (document.getElementById('admin-vehicles-section').style.display !== 'none') {
-                loadAdminVehicles();
+
+    // 2. Akciók
+    if (document.getElementById('akcio-section').classList.contains('active')) {
+        fetch(API_BASE_URL + '/api/akcio', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
+        .then(r => r.ok ? r.json() : null)
+        .then(ujAkciok => {
+            if (ujAkciok && JSON.stringify(ALL_AKCIOK) !== JSON.stringify(ujAkciok)) {
+                ALL_AKCIOK = ujAkciok;
+                const aG = document.getElementById('nav-akcio'); if (aG) { if (ALL_AKCIOK.filter(x => x.aktiv && !x.archivalva).length > 0) aG.classList.add('nav-btn-alert'); else aG.classList.remove('nav-btn-alert'); }
+                if (!document.querySelector('.akcio-details[style*="display: block"]')) {
+                    const k = document.getElementById('akcio-kereso'); renderAkciok(ALL_AKCIOK.filter(x => !k || !k.value || (x.szervezo_nev || '').toLowerCase().includes(k.value.toLowerCase())), false);
+                }
             }
+        }).catch(e => {});
+    }
+
+    // 3. Leaderboard
+    if (document.getElementById('leaderboard-section').classList.contains('active')) {
+        fetch(API_BASE_URL + '/api/tagok', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
+        .then(r => r.ok ? r.json() : null)
+        .then(ujTagok => {
+            if (ujTagok && JSON.stringify(ALL_TAGOK) !== JSON.stringify(ujTagok)) {
+                ALL_TAGOK = ujTagok;
+                renderLeaderboard();
+            }
+        }).catch(e => {});
+    }
+
+    // 4. Kérvények
+    fetch(API_BASE_URL + `/api/kervenyek${isAllKervenyekLoaded ? '?all=true' : ''}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
+    .then(r => r.ok ? r.json() : null)
+    .then(ujKervenyek => {
+        if (ujKervenyek && JSON.stringify(window.GLOBAL_KERVENYEK) !== JSON.stringify(ujKervenyek)) {
+            window.GLOBAL_KERVENYEK = ujKervenyek;
+            
+            const modal = document.getElementById('kerveny-chat-modal');
+            if (modal && modal.style.display === 'flex' && aktivKervenyId) {
+                const k = window.GLOBAL_KERVENYEK.find(x => x.id === aktivKervenyId); 
+                if (k) {
+                    if (k.kommentek) localStorage.setItem('read_comments_' + k.id, k.kommentek.length);
+                    frissitKervenyChatDoboz(k);
+                }
+            }
+            
+            frissitKervenyErtesito(ujKervenyek);
+            if (document.getElementById('kervenyek-section').classList.contains('active')) { const k = document.getElementById('kerveny-kereso'); szuresKervenyek(k ? k.value : ''); }
         }
-    }, 30000);
+    }).catch(e => {});
+
+    // 5. Járművek (Ide került be az optimalizált lekérés)
+    if (document.getElementById('jarmuvek-section').classList.contains('active')) {
+        loadVehicles();
+        if (document.getElementById('admin-vehicles-section').style.display !== 'none') {
+            loadAdminVehicles();
+        }
+    }
+}
 
     function inditOkosFrissitest() {
         if (activeIntervalId) clearInterval(activeIntervalId);
