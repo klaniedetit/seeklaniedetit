@@ -17,7 +17,7 @@ const SALT_ROUNDS = 10;
 //Memóriazár
 let isZarasFolyamatban = false;
 
-// Catch-all útvonal az összes API kérés kezelésére (Express 5 kompatibilis formátum)
+// Catch-all útvonal az összes API kérés kezelésére
 app.all('*any', async (req, res) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     const { method, url } = req;
@@ -48,7 +48,7 @@ app.all('*any', async (req, res) => {
                 kassza: isDev || jog?.kassza || false, hir_iras: isDev || jog?.hir_iras || false,
                 jog_akcio: isDev || jog?.jog_akcio || false, jog_lezart_akcio: isDev || jog?.jog_lezart_akcio || false,
                 jog_warn: isDev || jog?.jog_warn || false, jog_akcio_tervezes: isDev || jog?.jog_akcio_tervezes || false,
-                jog_kerveny: isDev || jog?.jog_kerveny || false
+                jog_kerveny: isDev || jog?.jog_kerveny || false, jog_jarmu: isDev || jog?.jog_jarmu || false
             }, JWT_SECRET, { expiresIn: '24h' });
             return res.json({ success: true, token, ic_nev: tag.ic_nev });
         }
@@ -69,7 +69,7 @@ app.all('*any', async (req, res) => {
                     kassza: isDev || jog?.kassza || false, hir_iras: isDev || jog?.hir_iras || false,
                     jog_akcio: isDev || jog?.jog_akcio || false, jog_lezart_akcio: isDev || jog?.jog_lezart_akcio || false,
                     jog_warn: isDev || jog?.jog_warn || false, jog_akcio_tervezes: isDev || jog?.jog_akcio_tervezes || false,
-                    jog_kerveny: isDev || jog?.jog_kerveny || false
+                    jog_kerveny: isDev || jog?.jog_kerveny || false, jog_jarmu: isDev || jog?.jog_jarmu || false
                 }, JWT_SECRET, { expiresIn: '24h' });
                 return res.json({ valid: true, newToken });
             }
@@ -352,7 +352,6 @@ app.all('*any', async (req, res) => {
                 const { data: p } = await supabase.from('tagok').select('*').eq('id', id).single(); 
                 const { data: w } = await supabase.from('figyelmeztetesek').select('*').eq('tag_id', id).order('datum', { ascending: false }); 
                 
-                // 14 napos statisztika kiszámolása
                 const tizennegyNapja = new Date();
                 tizennegyNapja.setDate(tizennegyNapja.getDate() - 14);
                 const { data: recentAkciok } = await supabase.from('akciok').select('szervezo_id, resztvevok').gte('datum', tizennegyNapja.toISOString());
@@ -374,6 +373,166 @@ app.all('*any', async (req, res) => {
                 return res.json(p); 
             } else { await supabase.from('tagok').update(req.body).eq('id', id); return res.json({ success: true }); } 
         }
+        //járművek
+        if (path === '/api/vehicles' && method === 'GET') {
+            const { data, error } = await supabase.from('jarmuvek').select('*').order('id', { ascending: true });
+            if (error) return res.status(500).json({ error: error.message });
+            return res.json(data || []);
+        }
+
+        // JÁRMŰ HOZZÁADÁSA
+        if (path === '/api/vehicles' && method === 'POST') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            await supabase.from('jarmuvek').insert([{ 
+                tipus: req.body.tipus, 
+                rendszam: req.body.rendszam, 
+                alvazszam: req.body.alvazszam || '-',
+                allapot: 'szabad' 
+            }]);
+            return res.json({ success: true });
+        }
+
+        // JÁRMŰ SZERKESZTÉSE ÉS TÖRLÉSE
+        if (path.match(/^\/api\/vehicles\/\d+$/)) {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const vId = path.split('/').pop();
+            
+            if (method === 'PUT') {
+                await supabase.from('jarmuvek').update({ 
+                    tipus: req.body.tipus, 
+                    rendszam: req.body.rendszam,
+                    alvazszam: req.body.alvazszam
+                }).eq('id', vId);
+                return res.json({ success: true });
+            }
+            if (method === 'DELETE') {
+                await supabase.from('jarmuvek').delete().eq('id', vId);
+                return res.json({ success: true });
+            }
+        }
+
+        // ELTILTOTT TAGOK LEKÉRÉSE
+        if (path === '/api/vehicles/banned' && method === 'GET') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const { data } = await supabase.from('tagok').select('id, nev, ic_nev, jarmu_eltiltas').not('jarmu_eltiltas', 'is', null);
+            const most = new Date();
+            return res.json((data || []).filter(t => new Date(t.jarmu_eltiltas) > most));
+        }
+        if (path === '/api/vehicles/request' && method === 'POST') {
+            const { vehicleId } = req.body;
+            if (!user) return res.status(401).json({ error: 'Nincs bejelentkezve vagy lejárt a munkamenet!' });
+            const { data: userData } = await supabase.from('tagok').select('jarmu_eltiltas').eq('id', user.id).single();
+            if (userData && userData.jarmu_eltiltas) {
+                const banDate = new Date(userData.jarmu_eltiltas);
+                if (banDate > new Date()) {
+                    return res.status(403).json({ error: `El vagy tiltva a járművek használatától eddig: ${banDate.toLocaleString()}` });
+                }
+            }
+            const { data: vehicle } = await supabase.from('jarmuvek').select('*').eq('id', vehicleId).single();
+            if (!vehicle || vehicle.allapot !== 'szabad') {
+                return res.status(400).json({ error: 'Ez a jármű jelenleg nem szabad!' });
+            }
+            await supabase.from('jarmuvek').update({ allapot: 'igenyles_alatt', hasznalo_id: user.id, hasznalo_nev: user.ic_nev || user.nev }).eq('id', vehicleId);
+            return res.json({ success: true });
+        }
+        if (path === '/api/vehicles/request_approve' && method === 'POST') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const { vehicleId } = req.body;
+            
+            const { data: vehicle } = await supabase.from('jarmuvek').select('*').eq('id', vehicleId).single();
+            if(vehicle && vehicle.allapot === 'igenyles_alatt') {
+                await supabase.from('jarmuvek').update({ allapot: 'hasznalatban' }).eq('id', vehicleId);
+                await supabase.from('jarmu_log').insert([{ jarmu_id: vehicleId, rendszam: vehicle.rendszam, hasznalo_id: vehicle.hasznalo_id, hasznalo_nev: vehicle.hasznalo_nev }]);
+            }
+            return res.json({ success: true });
+        }
+        if (path === '/api/vehicles/request_reject' && method === 'POST') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const { vehicleId } = req.body;
+            await supabase.from('jarmuvek').update({ allapot: 'szabad', hasznalo_id: null, hasznalo_nev: null }).eq('id', vehicleId);
+            return res.json({ success: true });
+        }
+        if (path === '/api/vehicles/return' && method === 'POST') {
+            const { vehicleId, proof } = req.body;
+            if (!user) return res.status(401).json({ error: 'Nincs bejelentkezve!' });
+            await supabase.from('jarmuvek').update({ allapot: 'ellenorzes_alatt', hasznalo_id: null, hasznalo_nev: null }).eq('id', vehicleId);
+            const { data: logs } = await supabase.from('jarmu_log')
+                .select('id').eq('jarmu_id', vehicleId).eq('hasznalo_id', user.id).is('leadas_ideje', null).order('felvetel_ideje', { ascending: false }).limit(1);
+
+            if (logs && logs.length > 0) {
+                await supabase.from('jarmu_log').update({ leadas_ideje: new Date().toISOString(), bizonyitek: proof }).eq('id', logs[0].id);
+            }
+            return res.json({ success: true });
+        }
+        if (path === '/api/vehicles/report' && method === 'POST') {
+            const { vehicleId, proof } = req.body;
+            if (!user) return res.status(401).json({ error: 'Nincs bejelentkezve!' });
+
+            const { data: lastLog } = await supabase.from('jarmu_log')
+                .select('*').eq('jarmu_id', vehicleId)
+                .not('leadas_ideje', 'is', null)
+                .order('leadas_ideje', { ascending: false }).limit(1);
+
+            if (!lastLog || lastLog.length === 0) {
+                return res.status(400).json({ error: 'Nincs előző használó a rendszerben ennél a járműnél!' });
+            }
+
+            const prevLog = lastLog[0];
+            const ujBizonyitek = prevLog.bizonyitek + ` | [Helytelen áll. bejelentés: ${proof}]`;
+            await supabase.from('jarmu_log')
+                .update({ ellenorizve: false, bizonyitek: ujBizonyitek })
+                .eq('id', prevLog.id);
+
+            return res.json({ success: true });
+        }
+        if (path === '/api/vehicles/admin' && method === 'GET') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const { data: returns } = await supabase.from('jarmu_log').select('*').not('leadas_ideje', 'is', null).eq('ellenorizve', false).order('leadas_ideje', { ascending: false });
+            const { data: requests } = await supabase.from('jarmuvek').select('*').eq('allapot', 'igenyles_alatt');
+            
+            return res.json({ returns: returns || [], requests: requests || [] });
+        }
+        if (path.match(/^\/api\/vehicles\/\d+\/history$/) && method === 'GET') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const vId = path.split('/')[3];
+            const { data } = await supabase.from('jarmu_log').select('*').eq('jarmu_id', vId).not('leadas_ideje', 'is', null).order('leadas_ideje', { ascending: false }).limit(50);
+            return res.json(data || []);
+        }
+        if (path === '/api/vehicles/punish' && method === 'POST') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const { userId, logId, duration } = req.body;
+
+            let banUntil = new Date();
+            if (duration === '1') banUntil.setDate(banUntil.getDate() + 1);
+            else if (duration === '7') banUntil.setDate(banUntil.getDate() + 7);
+            else if (duration === '30') banUntil.setDate(banUntil.getDate() + 30);
+            else if (duration === 'forever') banUntil.setFullYear(banUntil.getFullYear() + 100);
+            await supabase.from('tagok').update({ jarmu_eltiltas: banUntil.toISOString() }).eq('id', userId);
+            await supabase.from('jarmu_log').update({ ellenorizve: true }).eq('id', logId);
+            const { data: logData } = await supabase.from('jarmu_log').select('jarmu_id').eq('id', logId).single();
+            if (logData && logData.jarmu_id) {
+                const { data: vData } = await supabase.from('jarmuvek').select('allapot').eq('id', logData.jarmu_id).single();
+                if (vData && vData.allapot === 'ellenorzes_alatt') {
+                    await supabase.from('jarmuvek').update({ allapot: 'szabad' }).eq('id', logData.jarmu_id);
+                }
+            }
+
+            return res.json({ success: true });
+        }
+        if (path === '/api/vehicles/approve' && method === 'POST') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const { logId } = req.body;
+            await supabase.from('jarmu_log').update({ ellenorizve: true }).eq('id', logId);
+            const { data: logData } = await supabase.from('jarmu_log').select('jarmu_id').eq('id', logId).single();
+            if (logData && logData.jarmu_id) {
+                const { data: vData } = await supabase.from('jarmuvek').select('allapot').eq('id', logData.jarmu_id).single();
+                if (vData && vData.allapot === 'ellenorzes_alatt') {
+                    await supabase.from('jarmuvek').update({ allapot: 'szabad' }).eq('id', logData.jarmu_id);
+                }
+            }
+
+            return res.json({ success: true });
+        }
 
         //HÍREK ÉS JELSZÓ
         if (path === '/api/hirek') { if (method === 'GET') { const { data } = await supabase.from('hirek').select('*').order('datum', { ascending: false }); return res.json(data); } else { await supabase.from('hirek').insert([{ ...req.body, iro: user.nev }]); return res.json({ success: true }); } }
@@ -391,5 +550,5 @@ app.all('*any', async (req, res) => {
 // Szerver elindítása
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`A Klani E Detit HQ szerver sikeresen elindult a ${PORT}-es porton!`);
+    console.log(`A Klani E Detit szerver sikeresen elindult a ${PORT}-es porton!`);
 });
