@@ -179,6 +179,7 @@ app.all('*any', async (req, res) => {
                 return res.json(data || []);
             }
             if (method === 'POST') {
+                console.log("KÉRVÉNY BEKÜLDÉS ÉRZÉKELVE");
                 const { data: activeList } = await supabase.from('kervenyek').select('id').eq('bekuldo_id', user.id).eq('statusz', 'Függőben');
                 if (activeList && activeList.length > 0) {
                     return res.status(400).json({ error: 'Már van egy elbírálásra váró kérvényed! Várj türelemmel.' });
@@ -187,6 +188,43 @@ app.all('*any', async (req, res) => {
                     bekuldo_id: user.id, bekuldo_nev: user.ic_nev || user.nev, 
                     cim: req.body.cim, tartalom: req.body.tartalom, statusz: 'Függőben', kommentek: []
                 }]);
+                
+                //DISCORD WEBHOOK
+                const DISCORD_KERVENY_WEBHOOK_URL = 'https://discord.com/api/webhooks/1512408216951193643/IX1u11XEkAOqCKlkze5gi9hjc3VliCw63IrrwA_9zPatZWBnHuc5EUYEbM-wDpIKE7-Y';
+                try {
+                    const biztonsagosCim = req.body.cim ? req.body.cim.trim() : "Névtelen kérvény";
+                    let biztonsagosTartalom = req.body.tartalom ? req.body.tartalom.trim() : "Nincs tartalom megadva.";
+                    if (biztonsagosTartalom.length > 4000) {
+                        biztonsagosTartalom = biztonsagosTartalom.substring(0, 4000) + "... [Levágva]";
+                    }
+
+                    const discordMessage = {
+                        content: "**Új kérvény!** <@&1422139897082544138> <@&1467951817785610534> <@&1467951910752358583>",
+                        embeds: [{ 
+                            title: biztonsagosCim, 
+                            description: `**Beküldő:** ${user.ic_nev || user.nev}\n**Tartalom:**\n${biztonsagosTartalom}`, 
+                            color: 16753920,
+                            timestamp: new Date().toISOString() 
+                        }]
+                    };
+                    
+                    const response = await fetch(DISCORD_KERVENY_WEBHOOK_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(discordMessage) 
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("DISCORD WEBHOOK HIBA:", response.status, errorText);
+                    } else {
+                        console.log("Discord kérvény értesítő sikeresen elküldve!");
+                    }
+
+                } catch (err) {
+                    console.error("Fetch hiba a Discord csatlakozáskor:", err);
+                }
+                
                 return res.json({ success: true });
             }
         }
