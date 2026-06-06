@@ -477,6 +477,52 @@ app.all('*any', async (req, res) => {
             await supabase.from('jarmuvek').update({ allapot: 'szabad', hasznalo_id: null, hasznalo_nev: null }).eq('id', vehicleId);
             return res.json({ success: true });
         }
+        if (path === '/api/vehicles/force_return' && method === 'POST') {
+            if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
+            const { vehicleId } = req.body;
+
+            // Lekérjük a jármű jelenlegi adatait az előzmények lezárásához
+            const { data: vehicle } = await supabase.from('jarmuvek').select('*').eq('id', vehicleId).single();
+            if (!vehicle) return res.status(404).json({ error: 'Jármű nem található!' });
+
+            // Jármű felszabadítása az adatbázisban
+            await supabase.from('jarmuvek').update({ allapot: 'szabad', hasznalo_id: null, hasznalo_nev: null }).eq('id', vehicleId);
+
+            // Ha a jármű használatban volt, lezárjuk a hozzá tartozó nyitott logot is
+            if (vehicle.hasznalo_id) {
+                const { data: logs } = await supabase.from('jarmu_log')
+                    .select('id')
+                    .eq('jarmu_id', vehicleId)
+                    .eq('hasznalo_id', vehicle.hasznalo_id)
+                    .is('leadas_ideje', null)
+                    .order('felvetel_ideje', { ascending: false })
+                    .limit(1);
+
+                if (logs && logs.length > 0) {
+                    await supabase.from('jarmu_log').update({ 
+                        leadas_ideje: new Date().toISOString(), 
+                        bizonyitek: 'Admin által visszavéve',
+                        ellenorizve: true 
+                    }).eq('id', logs[0].id);
+                }
+            }
+            
+            const DISCORD_JARMU_WEBHOOK_URL = 'https://discord.com/api/webhooks/1512408216951193643/IX1u11XEkAOqCKlkze5gi9hjc3VliCw63IrrwA_9zPatZWBnHuc5EUYEbM-wDpIKE7-Y';
+            try {
+                const discordMessage = {
+                    content: "**Jármű elvétele!**",
+                    embeds: [{ 
+                        title: `${vehicle.tipus} (${vehicle.rendszam})`, 
+                        description: `**Akitől elvéve:** ${vehicle.hasznalo_nev || 'Ismeretlen'}\n**Intézkedő Admin:** ${user.ic_nev || user.nev}`, 
+                        color: 15158332,
+                        timestamp: new Date().toISOString() 
+                    }]
+                };
+                await fetch(DISCORD_JARMU_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(discordMessage) });
+            } catch (err) {}
+
+            return res.json({ success: true });
+        }
 
         //JÁRMŰ LEADÁSA
         if (path === '/api/vehicles/return' && method === 'POST') {

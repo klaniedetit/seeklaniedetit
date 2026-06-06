@@ -2067,16 +2067,21 @@ function switchLeaderboard(type) {
                 : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.32 8.44A2.001 2.001 0 015.07 7h13.86c.86 0 1.62.55 1.88 1.37l1.73 5.48c.32 1.01.46 2.06.46 3.15v2a2 2 0 01-2 2h-1a2 2 0 01-2-2v-1H5v1a2 2 0 01-2 2H2a2 2 0 01-2-2v-2c0-1.09.14-2.14.46-3.15l1.73-5.48zM5.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm13 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM5.89 9l-.63 2h13.48l-.63-2H5.89z"/></svg>`;
 
             let adminControls = '';
-            if (myPermissions && (myPermissions.jog_jarmu || myUserRang === 'DEV')) {
-                // Fejlettebb kinézetű admin gombok, világosabb körvonalakkal és háttérrel
-                adminControls = `
-                    <div style="display:flex; gap:8px; margin-top:10px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); flex-wrap:wrap;">
-                        <button class="btn" style="flex:1; padding:0.5rem; font-size:0.75rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text);" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="openVehicleHistory(${vehicle.id}, '${vehicle.rendszam}')">Előzmény</button>
-                        <button class="btn" style="flex:1; padding:0.5rem; font-size:0.75rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text);" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="editVehicle(${vehicle.id}, '${vehicle.tipus}', '${vehicle.rendszam}', '${vehicle.alvazszam || '-'}')">Szerkesztés</button>
-                        <button class="btn btn-danger" style="flex:1; padding:0.5rem; font-size:0.75rem; border:1px solid rgba(239, 68, 68, 0.3);" onclick="deleteVehicle(${vehicle.id})">Törlés</button>
-                    </div>
-                `;
-            }
+                if (myPermissions && (myPermissions.jog_jarmu || myUserRang === 'DEV')) {
+                    let elvetelGomb = '';
+                    if (vehicle.allapot !== 'szabad') {
+                        elvetelGomb = `<button class="btn btn-warn" style="flex:1; padding:0.4rem; font-size:0.75rem;" onclick="forceReturnVehicle(${vehicle.id})">Elvétel</button>`;
+                    }
+
+                    adminControls = `
+                        <div style="display:flex; gap:5px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); flex-wrap:wrap;">
+                            <button class="btn" style="flex:1; padding:0.4rem; font-size:0.75rem; background:transparent; border:1px solid var(--border); color:var(--text-muted);" onclick="openVehicleHistory(${vehicle.id}, '${vehicle.rendszam}')">Előzmény</button>
+                            <button class="btn" style="flex:1; padding:0.4rem; font-size:0.75rem; background:transparent; border:1px solid var(--border); color:var(--text-muted);" onclick="editVehicle(${vehicle.id}, '${vehicle.tipus}', '${vehicle.rendszam}', '${vehicle.alvazszam || '-'}')">Szerkesztés</button>
+                            ${elvetelGomb}
+                            <button class="btn btn-danger" style="flex:1; padding:0.4rem; font-size:0.75rem;" onclick="deleteVehicle(${vehicle.id})">Törlés</button>
+                        </div>
+                    `;
+                }
 
             // Kártya renderelése gradienssel és kontrasztos elemekkel
             grid.innerHTML += `
@@ -2238,6 +2243,23 @@ function switchLeaderboard(type) {
         
         const response = await apiFetch(`/api/vehicles/${id}`, { method: 'DELETE' });
         if (response) loadVehicles();
+    }
+    async function forceReturnVehicle(vehicleId) {
+        const confirmed = await confirm('Biztosan el akarod venni ezt a járművet a jelenlegi használójától?');
+        if (!confirmed) return;
+
+        const response = await apiFetch('/api/vehicles/force_return', {
+            method: 'POST',
+            body: JSON.stringify({ vehicleId })
+        });
+
+        if (response) {
+            alert('Jármű sikeresen elvéve és felszabadítva!');
+            loadVehicles();
+            if (document.getElementById('admin-vehicles-section').style.display !== 'none') {
+                loadAdminVehicles();
+            }
+        }
     }
 
     //ADMIN PANELEK BETÖLTÉSE
