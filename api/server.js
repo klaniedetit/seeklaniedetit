@@ -477,6 +477,18 @@ app.all('*any', async (req, res) => {
             await supabase.from('jarmuvek').update({ allapot: 'szabad', hasznalo_id: null, hasznalo_nev: null }).eq('id', vehicleId);
             return res.json({ success: true });
         }
+        if (path === '/api/vehicles/cancel_request' && method === 'POST') {
+            const { vehicleId } = req.body;
+            if (!user) return res.status(401).json({ error: 'Nincs bejelentkezve!' });
+            
+            const { data: vehicle } = await supabase.from('jarmuvek').select('hasznalo_id, allapot').eq('id', vehicleId).single();
+            if (vehicle && vehicle.allapot === 'igenyles_alatt' && vehicle.hasznalo_id === user.id) {
+                await supabase.from('jarmuvek').update({ allapot: 'szabad', hasznalo_id: null, hasznalo_nev: null }).eq('id', vehicleId);
+                return res.json({ success: true });
+            } else {
+                return res.status(403).json({ error: 'Ezt az igénylést nem vonhatod vissza!' });
+            }
+        }
         if (path === '/api/vehicles/force_return' && method === 'POST') {
             if (!user.jog_jarmu && user.rang !== 'DEV') return res.status(403).json({ error: 'Nincs jogod!' });
             const { vehicleId } = req.body;

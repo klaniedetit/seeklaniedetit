@@ -776,8 +776,6 @@
             <p style="margin:4px 0 0 0; color:var(--text-muted); font-size:0.9rem;">Nálad lévő jármű rendszáma: <strong id="active-vehicle-plate" style="color:var(--text); font-family:monospace; background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:4px; border:1px solid var(--border);"></strong></p>
         </div>
     </div>
-    
-    <!-- Itt a kiemelt figyelmeztetés -->
     <p style="color:var(--danger); font-size:0.85rem; font-weight:600; margin-bottom:15px; padding:10px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-sm); border:1px solid rgba(239, 68, 68, 0.2); text-align: center;">
         ⚠️ Mielőtt leadod a járművet, szereltesd meg, tankold meg, majd parkold le a kijelölt helyre! ⚠️<br><br>(Ennek mulasztása figyelmeztetéssel és/vagy járműigényléstől való eltiltással járhat.)
     </p>
@@ -2006,22 +2004,22 @@ function switchLeaderboard(type) {
     }
     let LAST_VEHICLES = null;
     async function loadVehicles() {
-    try {
-        const grid = document.getElementById('vehicles-grid');
-        if (!LAST_VEHICLES) {
-            grid.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1 / -1; padding: 20px;">Betöltés folyamatban...</div>';
-        }
+        try {
+            const grid = document.getElementById('vehicles-grid');
+            if (!LAST_VEHICLES) {
+                grid.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1 / -1; padding: 20px;">Betöltés folyamatban...</div>';
+            }
 
-        const response = await apiFetch('/api/vehicles'); 
-        if (!response) return; 
-        
-        const vehicles = await response.json();
-        if (LAST_VEHICLES && JSON.stringify(LAST_VEHICLES) === JSON.stringify(vehicles)) {
-            return; 
-        }
+            const response = await apiFetch('/api/vehicles'); 
+            if (!response) return; 
+            
+            const vehicles = await response.json();
+            if (LAST_VEHICLES && JSON.stringify(LAST_VEHICLES) === JSON.stringify(vehicles)) {
+                return; 
+            }
 
-        LAST_VEHICLES = vehicles;
-        grid.innerHTML = '';
+            LAST_VEHICLES = vehicles;
+            grid.innerHTML = '';
 
             if(vehicles.length === 0) {
                 grid.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1 / -1; padding: 20px; background:var(--surface-light); border-radius:var(--radius-sm); border:1px dashed var(--border);">Nincs elérhető jármű a rendszerben.</div>';
@@ -2030,43 +2028,48 @@ function switchLeaderboard(type) {
             let myActiveVehicle = null;
 
             vehicles.forEach(vehicle => {
-            if (vehicle.hasznalo_id === myUserId && vehicle.allapot === 'hasznalatban') {
-                myActiveVehicle = vehicle;
-            }
+                if (vehicle.hasznalo_id === myUserId && vehicle.allapot === 'hasznalatban') {
+                    myActiveVehicle = vehicle;
+                }
 
-            let statusBadge = '';
-            let actionHtml = '';
-            let cardBorder = 'border: 1px solid rgba(255, 255, 255, 0.08);'; // Világosabb, élesebb szegély
-            let iconGlow = '';
+                let statusBadge = '';
+                let actionHtml = '';
+                let cardBorder = 'border: 1px solid rgba(255, 255, 255, 0.08);'; 
+                let iconGlow = '';
+                if (vehicle.allapot === 'szabad') {
+                    statusBadge = '<span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--success); font-size:0.75rem; border: 1px solid rgba(16, 185, 129, 0.3);">Szabad</span>';
+                    actionHtml = `<button class="btn btn-primary" style="width:100%; margin-top:15px; padding:0.8rem; font-size:0.85rem; font-weight:600; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);" onclick="requestVehicle(${vehicle.id})">Igénylés</button>`;
+                    iconGlow = 'color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);';
+                
+                } else if (vehicle.allapot === 'igenyles_alatt') {
+                    statusBadge = '<span class="badge" style="background:rgba(168, 85, 247, 0.15); color:#c084fc; font-size:0.75rem; border: 1px solid rgba(168, 85, 247, 0.3);">Függőben</span>';
+                    iconGlow = 'color: #c084fc; background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.2);';
+                    if (vehicle.hasznalo_id === myUserId) {
+                        actionHtml = `
+                            <div style="margin-top:15px; padding:8px; background:rgba(0,0,0,0.2); border:1px dashed #a855f7; border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:#c084fc; margin-bottom:8px;">A te igénylésed elfogadásra vár</div>
+                            <button class="btn btn-danger" style="width:100%; padding:0.6rem; font-size:0.85rem; border:1px solid rgba(239,68,68,0.3);" onclick="cancelVehicleRequest(${vehicle.id})">Igénylés visszavonása</button>
+                        `;
+                    } else {
+                        actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168, 85, 247, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:#c084fc;"><strong>${vehicle.hasznalo_nev}</strong> igénylése elfogadásra vár</div>`;
+                    }
+                
+                } else if (vehicle.allapot === 'hasznalatban') {
+                    statusBadge = '<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--warn); font-size:0.75rem; border: 1px solid rgba(245, 158, 11, 0.3);">Használatban</span>';
+                    actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--text-muted);">Nála: <strong style="color:var(--warn);">${vehicle.hasznalo_nev || 'Ismeretlen'}</strong></div>`;
+                    iconGlow = 'color: var(--warn); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2);';
+                    cardBorder = 'border: 1px solid rgba(245, 158, 11, 0.25);'; 
+                
+                } else if (vehicle.allapot === 'ellenorzes_alatt') {
+                    statusBadge = '<span class="badge" style="background:rgba(59, 130, 246, 0.15); color:var(--accent); font-size:0.75rem; border: 1px solid rgba(59, 130, 246, 0.3);">Ellenőrzés alatt</span>';
+                    actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--accent);">Letétel jóváhagyásra vár</div>`;
+                    iconGlow = 'color: var(--accent); background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);';
+                }
 
-            // Állapotfüggő színek és dizájn
-            if (vehicle.allapot === 'szabad') {
-                statusBadge = '<span class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--success); font-size:0.75rem; border: 1px solid rgba(16, 185, 129, 0.3);">Szabad</span>';
-                actionHtml = `<button class="btn btn-primary" style="width:100%; margin-top:15px; padding:0.8rem; font-size:0.85rem; font-weight:600; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);" onclick="requestVehicle(${vehicle.id})">Igénylés</button>`;
-                iconGlow = 'color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);';
-            
-            } else if (vehicle.allapot === 'igenyles_alatt') {
-                statusBadge = '<span class="badge" style="background:rgba(168, 85, 247, 0.15); color:#c084fc; font-size:0.75rem; border: 1px solid rgba(168, 85, 247, 0.3);">Függőben</span>';
-                actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(168, 85, 247, 0.05); border:1px solid rgba(168, 85, 247, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:#c084fc;"><strong>${vehicle.hasznalo_nev}</strong> igénylése elfogadásra vár</div>`;
-                iconGlow = 'color: #c084fc; background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.2);';
-            
-            } else if (vehicle.allapot === 'hasznalatban') {
-                statusBadge = '<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:var(--warn); font-size:0.75rem; border: 1px solid rgba(245, 158, 11, 0.3);">Használatban</span>';
-                actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--text-muted);">Nála: <strong style="color:var(--warn);">${vehicle.hasznalo_nev || 'Ismeretlen'}</strong></div>`;
-                iconGlow = 'color: var(--warn); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2);';
-                cardBorder = 'border: 1px solid rgba(245, 158, 11, 0.25);'; // Kiemeli a kártyát, ha használatban van
-            
-            } else if (vehicle.allapot === 'ellenorzes_alatt') {
-                statusBadge = '<span class="badge" style="background:rgba(59, 130, 246, 0.15); color:var(--accent); font-size:0.75rem; border: 1px solid rgba(59, 130, 246, 0.3);">Ellenőrzés alatt</span>';
-                actionHtml = `<div style="margin-top:15px; padding:10px; background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.2); border-radius:var(--radius-sm); text-align:center; font-size:0.85rem; color:var(--accent);">Letétel jóváhagyásra vár</div>`;
-                iconGlow = 'color: var(--accent); background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);';
-            }
+                let iconSvg = vehicle.tipus.toLowerCase().includes('heli') 
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.478 2.404a.75.75 0 00-.926.941l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.404z"/></svg>`
+                    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.32 8.44A2.001 2.001 0 015.07 7h13.86c.86 0 1.62.55 1.88 1.37l1.73 5.48c.32 1.01.46 2.06.46 3.15v2a2 2 0 01-2 2h-1a2 2 0 01-2-2v-1H5v1a2 2 0 01-2 2H2a2 2 0 01-2-2v-2c0-1.09.14-2.14.46-3.15l1.73-5.48zM5.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm13 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM5.89 9l-.63 2h13.48l-.63-2H5.89z"/></svg>`;
 
-            let iconSvg = vehicle.tipus.toLowerCase().includes('heli') 
-                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.478 2.404a.75.75 0 00-.926.941l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.404z"/></svg>`
-                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:20px; height:20px;"><path d="M3.32 8.44A2.001 2.001 0 015.07 7h13.86c.86 0 1.62.55 1.88 1.37l1.73 5.48c.32 1.01.46 2.06.46 3.15v2a2 2 0 01-2 2h-1a2 2 0 01-2-2v-1H5v1a2 2 0 01-2 2H2a2 2 0 01-2-2v-2c0-1.09.14-2.14.46-3.15l1.73-5.48zM5.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm13 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM5.89 9l-.63 2h13.48l-.63-2H5.89z"/></svg>`;
-
-            let adminControls = '';
+                let adminControls = '';
                 if (myPermissions && (myPermissions.jog_jarmu || myUserRang === 'DEV')) {
                     let elvetelGomb = '';
                     if (vehicle.allapot !== 'szabad') {
@@ -2083,35 +2086,32 @@ function switchLeaderboard(type) {
                     `;
                 }
 
-            // Kártya renderelése gradienssel és kontrasztos elemekkel
-            grid.innerHTML += `
-                <div style="background: linear-gradient(145deg, rgba(39, 39, 42, 0.5), rgba(28, 28, 31, 0.8)); ${cardBorder} border-radius:var(--radius-sm); padding:1.5rem; display:flex; flex-direction:column; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; will-change: transform, box-shadow;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.6)'; this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none'; this.style.boxShadow='none'; this.style.borderColor='rgba(255,255,255,0.08)'">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div style="width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1); ${iconGlow || 'background:rgba(255,255,255,0.05); color:var(--text);'}">
-                            ${iconSvg}
+                grid.innerHTML += `
+                    <div style="background: linear-gradient(145deg, rgba(39, 39, 42, 0.5), rgba(28, 28, 31, 0.8)); ${cardBorder} border-radius:var(--radius-sm); padding:1.5rem; display:flex; flex-direction:column; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; will-change: transform, box-shadow;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.6)'; this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none'; this.style.boxShadow='none'; this.style.borderColor='rgba(255,255,255,0.08)'">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div style="width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1); ${iconGlow || 'background:rgba(255,255,255,0.05); color:var(--text);'}">
+                                ${iconSvg}
+                            </div>
+                            ${statusBadge}
                         </div>
-                        ${statusBadge}
-                    </div>
-                    
-                    <h3 style="margin:15px 0 10px 0; font-size:1.15rem; color:#fff; font-weight:600; letter-spacing:0.5px;">${vehicle.tipus}</h3>
-                    
-                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 12px;">
-                        <div style="background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:6px; font-size:0.8rem; color:var(--text-muted); border:1px solid rgba(255,255,255,0.05); display:inline-flex; align-items:center; letter-spacing:0.5px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
-                            RSZ: <strong style="color:var(--text); margin-left:4px; font-family:monospace; font-size:0.9rem;">${vehicle.rendszam}</strong>
+                        
+                        <h3 style="margin:15px 0 10px 0; font-size:1.15rem; color:#fff; font-weight:600; letter-spacing:0.5px;">${vehicle.tipus}</h3>
+                        
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 12px;">
+                            <div style="background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:6px; font-size:0.8rem; color:var(--text-muted); border:1px solid rgba(255,255,255,0.05); display:inline-flex; align-items:center; letter-spacing:0.5px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+                                RSZ: <strong style="color:var(--text); margin-left:4px; font-family:monospace; font-size:0.9rem;">${vehicle.rendszam}</strong>
+                            </div>
+                            <div style="background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:6px; font-size:0.8rem; color:var(--text-muted); border:1px solid rgba(255,255,255,0.05); display:inline-flex; align-items:center; letter-spacing:0.5px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+                                ALVÁZ: <strong style="color:var(--text); margin-left:4px; font-family:monospace; font-size:0.9rem;">${vehicle.alvazszam || '-'}</strong>
+                            </div>
                         </div>
-                        <div style="background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:6px; font-size:0.8rem; color:var(--text-muted); border:1px solid rgba(255,255,255,0.05); display:inline-flex; align-items:center; letter-spacing:0.5px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
-                            ALVÁZ: <strong style="color:var(--text); margin-left:4px; font-family:monospace; font-size:0.9rem;">${vehicle.alvazszam || '-'}</strong>
-                        </div>
-                    </div>
 
-                    <div style="flex:1;"></div>
-                    ${actionHtml}
-                    ${adminControls}
-                </div>
-            `;
-        });
-
-            //leadás doboz
+                        <div style="flex:1;"></div>
+                        ${actionHtml}
+                        ${adminControls}
+                    </div>
+                `;
+            });
             const returnSection = document.getElementById('vehicle-return-section');
             if (myActiveVehicle) {
                 returnSection.style.display = 'block';
@@ -2140,6 +2140,19 @@ function switchLeaderboard(type) {
         if (response) {
             alert('Jármű sikeresen lefoglalva!');
             loadVehicles(); 
+        }
+    }
+    async function cancelVehicleRequest(vehicleId) {
+        const confirmed = await confirm('Biztosan visszavonod a jármű igénylését?');
+        if (!confirmed) return;
+
+        const response = await apiFetch('/api/vehicles/cancel_request', {
+            method: 'POST',
+            body: JSON.stringify({ vehicleId: vehicleId })
+        });
+
+        if (response) {
+            loadVehicles();
         }
     }
 
@@ -2446,8 +2459,6 @@ function switchLeaderboard(type) {
     }
     function futtatFrissitest() {
     if (!myUserId) return;
-    
-    // 1. Hírek
     if (document.getElementById('hirek-section').classList.contains('active')) {
         fetch(API_BASE_URL + '/api/hirek', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
         .then(r => r.ok ? r.json() : null)
@@ -2460,8 +2471,6 @@ function switchLeaderboard(type) {
             }
         }).catch(e => {});
     }
-
-    // 2. Akciók
     if (document.getElementById('akcio-section').classList.contains('active')) {
         fetch(API_BASE_URL + '/api/akcio', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
         .then(r => r.ok ? r.json() : null)
@@ -2475,8 +2484,6 @@ function switchLeaderboard(type) {
             }
         }).catch(e => {});
     }
-
-    // 3. Leaderboard
     if (document.getElementById('leaderboard-section').classList.contains('active')) {
         fetch(API_BASE_URL + '/api/tagok', { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
         .then(r => r.ok ? r.json() : null)
@@ -2487,8 +2494,6 @@ function switchLeaderboard(type) {
             }
         }).catch(e => {});
     }
-
-    // 4. Kérvények
     fetch(API_BASE_URL + `/api/kervenyek${isAllKervenyekLoaded ? '?all=true' : ''}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('klani_token')}` } })
     .then(r => r.ok ? r.json() : null)
     .then(ujKervenyek => {
@@ -2508,8 +2513,6 @@ function switchLeaderboard(type) {
             if (document.getElementById('kervenyek-section').classList.contains('active')) { const k = document.getElementById('kerveny-kereso'); szuresKervenyek(k ? k.value : ''); }
         }
     }).catch(e => {});
-
-    // 5. Járművek (Ide került be az optimalizált lekérés)
     if (document.getElementById('jarmuvek-section').classList.contains('active')) {
         loadVehicles();
         if (document.getElementById('admin-vehicles-section').style.display !== 'none') {
