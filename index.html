@@ -668,7 +668,7 @@
                         </h3>
                         <div style="display:flex;gap:15px;flex-wrap:wrap; align-items:center;">
                             <select id="uj-akcio-tipus" style="flex:1;min-width:150px;margin:0">
-                                <option value="ATM">ATM</option><option value="BANK">BANK</option><option value="SZIGET">SZIGET</option><option value="KÚT">KÚT</option><option value="KÖZÖS">KÖZÖS</option>
+                                <option value="ATM">ATM</option><option value="BANK">BANK</option><option value="SZIGET">SZIGET</option><option value="KÚT">KÚT</option><option value="KÖZÖS">KÖZÖS</option><option value="TÚSZEJTÉS">TÚSZEJTÉS</option>
                             </select>
                             <div id="tervezes-box" style="display:none; flex:1; min-width:150px;">
                                 <input type="datetime-local" id="uj-akcio-ido" style="margin:0;" title="Hagyd üresen, ha most azonnal indul">
@@ -1096,20 +1096,43 @@
     }
 
     async function bejelentkezes() {
-        const n = document.getElementById('login-user').value;
-        const j = document.getElementById('login-pass').value;
-        const r = await fetch(API_BASE_URL + '/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nev: n, jelszo: j }) });
-        const d = await r.json();
-        if (d.success) {
-            if (d.elso_belepes) {
-                window.tempId = d.user.id; document.getElementById('login-screen').style.display = 'none';
+    const n = document.getElementById('login-user').value;
+    const j = document.getElementById('login-pass').value;
+    const r = await fetch(API_BASE_URL + '/api/login', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ nev: n, jelszo: j }) 
+    });
+    const d = await r.json();
+    
+    if (d.success) {
+        if (window.PasswordCredential && navigator.credentials) {
+            const cred = new PasswordCredential({
+                id: n,
+                password: j,
+                name: n
+            });
+            navigator.credentials.store(cred).catch(err => console.log("Jelszómentés hiba:", err));
+        }
+
+        if (d.elso_belepes) {
+            window.tempId = d.user.id; 
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'flex'; 
                 document.querySelector('.sidebar').style.display = 'none'; 
                 tab('password-screen', null);
-            } else {
-                localStorage.setItem('klani_token', d.token); sessionStorage.setItem('welcome_name', d.ic_nev || n); location.reload();
-            }
-        } else { document.getElementById('login-hiba').innerText = d.error; }
+            }, 300);
+        } else {
+            localStorage.setItem('klani_token', d.token); 
+            sessionStorage.setItem('welcome_name', d.ic_nev || n); 
+            setTimeout(() => {
+                location.reload();
+            }, 300);
+        }
+        } else { 
+            document.getElementById('login-hiba').innerText = d.error; 
+        }
     }
 
     function tab(i, b) {
